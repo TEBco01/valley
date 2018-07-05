@@ -14,12 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <iostream>
-#include <bitboard.h>
+#pragma once
 
-int main() {
-  std::cout << "Hello world!" << std::endl;
-  bitboards testBBs;
-  testBBs.initStandardBoard();
-  return 0;
-}
+//typedef unsigned __int64 U64;
+typedef unsigned long long U64;
+#define C64(constantU64) constantU64##ULL
+
+class bitboards {
+  U64 WP=0,WN=0,WB=0,WR=0,WQ=0,WK=0,BP=0,BN=0,BB=0,BR=0,BQ=0,BK=0;
+
+private:
+  #ifdef generateBoards
+  U64 arrayToBitboard(const char array[64], char character);
+  #endif
+
+public:
+  void initStandardBoard();
+};
