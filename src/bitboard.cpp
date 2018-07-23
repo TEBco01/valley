@@ -15,10 +15,10 @@ limitations under the License.
 */
 
 
-//#define generateBoards // Generates the setup from a constant array instead of using constant integer values
+#define generateBoards // Generates the setup from a constant array instead of using constant integer values
 
 #include <bitboard.h>
-//#include <iostream>
+#include <iostream>
 
 void bitboards::initStandardBoard() {
 #ifdef generateBoards
@@ -46,6 +46,21 @@ void bitboards::initStandardBoard() {
   BQ = arrayToBitboard(board, 'q');
   BK = arrayToBitboard(board, 'k');
 
+  /*const char board2[64] = {
+    '%','U','b','q','k','b','A','A',
+    'U','U','p','p','p','p','A','A',
+    'U','U',' ',' ',' ',' ','A','A',
+    'Y','Y','Y','Y','Y','Y','Y','Y',
+    'X','X','X','X','X','X','X','X',
+    'U','U',' ',' ',' ',' ','A','A',
+    'U','U','P','P','P','P','A','A',
+    'Z','Z','Z','Z','Z','Z','A','A'
+  };
+
+  std::cout << BR << std::endl;
+  std::cout << "Trouble: " << arrayToBitboard(board2, '%') << std::endl;
+  */
+
   /*
   std::cout << WP << std::endl;
   std::cout << WN << std::endl;
@@ -61,8 +76,9 @@ void bitboards::initStandardBoard() {
   std::cout << BK << std::endl;
   */
 
-#else
+/*
   // Precomputed values
+  // These are incorrect, actually
   WP = 130560ULL;
   WN = 130692ULL;
   WB = 130764ULL;
@@ -75,17 +91,71 @@ void bitboards::initStandardBoard() {
   BR = 18446744072904245247ULL;
   BQ = 18446744073441116159ULL;
   BK = 18446744073709551615ULL;
-#endif
+*/
 }
 
-#ifdef generateBoards
+//#ifdef generateBoards
 U64 bitboards::arrayToBitboard(const char array[64], char character) {
-  U64 value;
+  U64 value = 0;
   for (int i=0; i < 64; i++) {
     if(array[i] == character) {
-      value |= 1 << (64 - i);
+      value |= 1ULL << (63ULL - (U64)i);
     }
   }
   return value;
 }
-#endif
+
+void bitboards::bitboardToArray(const U64 bitboard, char array[64], char character) {
+  for (int i=0; i < 64; i++) {
+    if( bitboard & 1ULL << (63ULL - (U64)i) ) {
+      array[i] = character;
+    }
+  }
+
+  // Alternate method devised when debugging
+  /*U64 bitboardCopy = bitboard;
+
+  int i = 63;
+  U64 tempCopy = 0;
+  while(bitboard != 0 && i >= 0) {
+    tempCopy = bitboardCopy;
+    bitboardCopy >>= 1;
+    if(tempCopy != (bitboardCopy << 1) ) {
+      array[i] = character;
+    }
+    i--;
+  }*/
+}
+//#endif
+
+void bitboards::convertToStanardArray(char array[64]) {
+  bitboardToArray(WP, array, 'P');
+  bitboardToArray(WN, array, 'N');
+  bitboardToArray(WB, array, 'B');
+  bitboardToArray(WR, array, 'R');
+  bitboardToArray(WQ, array, 'Q');
+  bitboardToArray(WK, array, 'K');
+  bitboardToArray(BP, array, 'p');
+  bitboardToArray(BN, array, 'n');
+  bitboardToArray(BB, array, 'b');
+  bitboardToArray(BR, array, 'r');
+  bitboardToArray(BQ, array, 'q');
+  bitboardToArray(BK, array, 'k');
+}
+
+void bitboards::printStandardArrayBoard() {
+  char array[64];
+  for (int i=0; i < 64; i++) {
+    array[i] = ' ';
+  }
+
+  convertToStanardArray(array);
+
+  int i = 0;
+  for(int y = 0; y < 8; y++) {
+    for(int x = 0; x < 8; x++, i++) {
+      std::cout << array[i];
+    }
+    std::cout << std::endl;
+  }
+}

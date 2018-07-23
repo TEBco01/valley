@@ -18,16 +18,18 @@ limitations under the License.
 
 //typedef unsigned __int64 U64;
 typedef unsigned long long U64;
-#define C64(constantU64) constantU64##ULL
+typedef const unsigned long long C64;
+//#define C64(constantU64) constantU64##ULL
 
 class bitboards {
   U64 WP=0,WN=0,WB=0,WR=0,WQ=0,WK=0,BP=0,BN=0,BB=0,BR=0,BQ=0,BK=0;
 
 private:
-  #ifdef generateBoards
   U64 arrayToBitboard(const char array[64], char character);
-  #endif
+  void bitboardToArray(const U64 bitboard, char array[64], char character);
 
 public:
-  void initStandardBoard();
+  void initStandardBoard(); // Fills the bitboards with the setup for standard chess
+  void convertToStanardArray(char array[64]); // Converts the bitboards into a char array, using a "standard" characters for certain pieces
+  void printStandardArrayBoard(); // Prints the board to cout, using the "standard" characters provided by convertToStandardArray()
 };

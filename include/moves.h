@@ -14,12 +14,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <iostream>
 #include <bitboard.h>
-
-int main() {
-  bitboards testBBs;
-  testBBs.initStandardBoard();
-  testBBs.printStandardArrayBoard();
-  return 0;
-}
