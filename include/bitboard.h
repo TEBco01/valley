@@ -30,6 +30,6 @@ private:
 
 public:
   void initStandardBoard(); // Fills the bitboards with the setup for standard chess
-  void convertToStanardArray(char array[64]); // Converts the bitboards into a char array, using a "standard" characters for certain pieces
+  void convertToStandardArray(char array[64]); // Converts the bitboards into a char array, using a "standard" characters for certain pieces
   void printStandardArrayBoard(); // Prints the board to cout, using the "standard" characters provided by convertToStandardArray()
 };

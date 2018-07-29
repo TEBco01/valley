@@ -16,10 +16,27 @@ limitations under the License.
 
 #include <iostream>
 #include <bitboard.h>
+#include <moves.h>
+
+void printArray(char array[64]) {
+  for(int y = 0, i = 0; y < 8; y++) {
+    for(int x = 0; x < 8; x++, i++) {
+      std::cout << array[i];
+    }
+    std::cout << std::endl;
+  }
+}
 
 int main() {
-  bitboards testBBs;
+  for(int y = 0, i = 0; y < 8; y++) {
+    for(int x = 0; x < 8; x++, i++) {
+      std::cout << i << " ";
+    }
+    std::cout << std::endl;
+  }
+
+  /*bitboards testBBs;
   testBBs.initStandardBoard();
-  testBBs.printStandardArrayBoard();
+  testBBs.printStandardArrayBoard();*/
   return 0;
 }

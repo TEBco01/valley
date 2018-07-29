@@ -15,3 +15,31 @@ limitations under the License.
 */
 
 #include <bitboard.h>
+
+typedef unsigned char byte;
+
+struct move {
+  byte start = 0, end = 0, special = 0; // For special: 1 is castle, 2 is pawn into Queen, 3 is pawn into Rook, 4 is pawn into Knight, 5 is pawn into Bishop
+};
+
+struct moveList {
+  move* moves;
+  int length = 0;
+
+  moveList() {
+    moves = new move[0];
+  }
+
+  void addMove(move newMove) {
+    length++;
+    move* temp = moves;
+    moves = new move[length];
+    for(int i = 0; i < (length - 1); i++) {
+      moves[i] = temp[i];
+    }
+    moves[length - 1] = newMove;
+    delete [] temp;
+  }
+};
+
+moveList possibleMovesArrayW(moveList history, char game[64]);

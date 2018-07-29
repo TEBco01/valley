@@ -128,7 +128,11 @@ void bitboards::bitboardToArray(const U64 bitboard, char array[64], char charact
 }
 //#endif
 
-void bitboards::convertToStanardArray(char array[64]) {
+void bitboards::convertToStandardArray(char array[64]) {
+  for (int i=0; i < 64; i++) {
+    array[i] = ' ';
+  }
+
   bitboardToArray(WP, array, 'P');
   bitboardToArray(WN, array, 'N');
   bitboardToArray(WB, array, 'B');
@@ -149,7 +153,7 @@ void bitboards::printStandardArrayBoard() {
     array[i] = ' ';
   }
 
-  convertToStanardArray(array);
+  convertToStandardArray(array);
 
   int i = 0;
   for(int y = 0; y < 8; y++) {

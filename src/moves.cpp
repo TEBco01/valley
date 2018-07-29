@@ -37,8 +37,80 @@ struct infoBoards {
   U64 EMPTY;
 };
 
-std::string possibleMovesWPawns(std::string history, bitboards game, infoBoards info) {
+bool isLowercase(char character) {
+  if(character >= 97 && character <= 122) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
+moveList possibleMovesArrayWPawns(moveList history, char game[64]) {
+  moveList possibleMoves;
+  for (int i=8; i < 56; i++) {
+    if(game[i] == 'P') {
+
+      if(i > 15) { // Not in range of end of board
+        if(game[i - 8] == ' ') { // Is the space in front open
+          move newMove;
+          newMove.start = i;
+          newMove.end = i - 8;
+          possibleMoves.addMove(newMove);
+
+          if(i > 47) { // In starting row
+            if(game[i - 16] == ' ') { // and clear two spaces ahead
+              move newMove2;
+              newMove2.start = i;
+              newMove2.end = i - 16;
+              possibleMoves.addMove(newMove2);
+            }
+          }
+
+        }
+
+        if(i%8 != 0 && isLowercase(game[i - 9])) { // Diagonal left attack
+          move newMove;
+          newMove.start = i;
+          newMove.end = i - 9;
+          possibleMoves.addMove(newMove);
+        }
+        if(i%8 != 7 && isLowercase(game[i - 7])) { // Diagonal right attack
+          move newMove;
+          newMove.start = i;
+          newMove.end = i - 7;
+          possibleMoves.addMove(newMove);
+        }
+      }
+      else { // We are in range of end of board
+        
+      }
+
+    }
+  }
+  return possibleMoves;
+}
+
+moveList possibleMovesArrayW(moveList history, char game[64]) {
+  moveList possibleMoves;
+  moveList pawnMoves = possibleMovesArrayWPawns(history, game);
+  for(int i = 0; i < pawnMoves.length; i++) {
+    possibleMoves.addMove(pawnMoves.moves[i]);
+  }
+  return possibleMoves;
+}
+
+std::string possibleMovesWPawns(std::string history, bitboards game, infoBoards info) {
+  // The array technique is very slow, and should be replaced eventually
+  // Update: Instead of converting, we're just going to always use an array
+  char array[64];
+  game.convertToStandardArray(array);
+  for (int i=0; i < 64; i++) {
+    if(array[i] == 'P') {
+
+    }
+  }
+
+ return "";
 }
 
 std::string possibleMovesW(std::string history, bitboards game) {
