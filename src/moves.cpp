@@ -18,7 +18,7 @@ limitations under the License.
 #include <iostream>
 
 struct infoBoards {
-  C64 FILE_A = 16843009ULL;
+  /*C64 FILE_A = 16843009ULL;
   C64 FILE_H = 33686018ULL;
   C64 FILE_AB = 18446744071587332481ULL;
   C64 FILE_GH = 101058054ULL;
@@ -34,7 +34,7 @@ struct infoBoards {
   C64 KNIGHT_C6 = 0;
   U64 NOT_WHITE_PIECES;
   U64 BLACK_PIECES;
-  U64 EMPTY;
+  U64 EMPTY;*/
 };
 
 bool isLowercase(char character) {
@@ -82,7 +82,7 @@ moveList possibleMovesArrayWPawns(moveList history, char game[64]) {
         }
       }
       else { // We are in range of end of board
-        
+
       }
 
     }
@@ -99,7 +99,7 @@ moveList possibleMovesArrayW(moveList history, char game[64]) {
   return possibleMoves;
 }
 
-std::string possibleMovesWPawns(std::string history, bitboards game, infoBoards info) {
+/*std::string possibleMovesWPawns(std::string history, bitboards game, infoBoards info) {
   // The array technique is very slow, and should be replaced eventually
   // Update: Instead of converting, we're just going to always use an array
   char array[64];
@@ -116,4 +116,96 @@ std::string possibleMovesWPawns(std::string history, bitboards game, infoBoards 
 std::string possibleMovesW(std::string history, bitboards game) {
   infoBoards info;
   return possibleMovesWPawns(history, game, info);
+}*/
+
+moveList generateMovesFromBitboard(const U64 toBoard) {
+  moveList moves;
+  for (int i=0; i < 64; i++) {
+    if( toBoard & 1ULL << (63ULL - (U64)i) ) {
+      moves.createMove(0, i);
+    }
+  }
+  return moves;
+}
+
+moveList possibleMovesWPawns(moveList history, const bitboards game, const extraBitboardsInfo info) {
+  moveList possibleMoves;
+  // Move forward one
+    U64 fw1 = ( (game.WP & ~Rank_7) << 8 ) & ~(info.BlackPieces & info.WhitePieces);
+  moveList fw1List = generateMovesFromBitboard(fw1);
+  for(int i = 0; i < fw1List.length; i++) {
+    fw1List.moves[i].start = fw1List.moves[i].end + 8;
+  }
+  possibleMoves.addMoveList(fw1List);
+  // Move forward two
+  // Attack
+  // Promotion
+  // En passant
+  return possibleMoves;
+}
+
+// Only guaranteed for standard chess
+moveList possibleMovesW(moveList history, const bitboards game) {
+  moveList possibleMoves;
+
+  extraBitboardsInfo info;
+  info.updateFromBitboards(game);
+
+  moveList pawnMoves = possibleMovesWPawns(history, game, info);
+  for(int i = 0; i < pawnMoves.length; i++) {
+    possibleMoves.addMove(pawnMoves.moves[i]);
+  }
+  return possibleMoves;
+}
+
+// Note: lots of room for optimization; no support for speical moves
+void applyMove(bitboards* game, move change) {
+  if( game->WP & 1ULL << (63ULL - (U64)change.start) ) {
+    game->WP ^= 1ULL << (63ULL - (U64)change.start);
+    game->WP |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->WN & 1ULL << (63ULL - (U64)change.start) ) {
+    game->WN ^= 1ULL << (63ULL - (U64)change.start);
+    game->WN |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->WB & 1ULL << (63ULL - (U64)change.start) ) {
+    game->WB ^= 1ULL << (63ULL - (U64)change.start);
+    game->WB |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->WR & 1ULL << (63ULL - (U64)change.start) ) {
+    game->WR ^= 1ULL << (63ULL - (U64)change.start);
+    game->WR |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->WQ & 1ULL << (63ULL - (U64)change.start) ) {
+    game->WQ ^= 1ULL << (63ULL - (U64)change.start);
+    game->WQ |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->WK & 1ULL << (63ULL - (U64)change.start) ) {
+    game->WK ^= 1ULL << (63ULL - (U64)change.start);
+    game->WK |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->BP & 1ULL << (63ULL - (U64)change.start) ) {
+    game->BP ^= 1ULL << (63ULL - (U64)change.start);
+    game->BP |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->BN & 1ULL << (63ULL - (U64)change.start) ) {
+    game->BN ^= 1ULL << (63ULL - (U64)change.start);
+    game->BN |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->BB & 1ULL << (63ULL - (U64)change.start) ) {
+    game->BB ^= 1ULL << (63ULL - (U64)change.start);
+    game->BB |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->BR & 1ULL << (63ULL - (U64)change.start) ) {
+    game->BR ^= 1ULL << (63ULL - (U64)change.start);
+    game->BR |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->BQ & 1ULL << (63ULL - (U64)change.start) ) {
+    game->BQ ^= 1ULL << (63ULL - (U64)change.start);
+    game->BQ |= 1ULL << (63ULL - (U64)change.end);
+  }
+  if( game->BK & 1ULL << (63ULL - (U64)change.start) ) {
+    game->BK ^= 1ULL << (63ULL - (U64)change.start);
+    game->BK |= 1ULL << (63ULL - (U64)change.end);
+  }
 }

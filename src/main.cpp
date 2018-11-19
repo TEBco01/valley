@@ -27,16 +27,63 @@ void printArray(char array[64]) {
   }
 }
 
-int main() {
+// A way to manually generate a constant bitboard
+void generateConstBitboard() {
+  std::cout << std::endl;
   for(int y = 0, i = 0; y < 8; y++) {
     for(int x = 0; x < 8; x++, i++) {
-      std::cout << i << " ";
+      if(i >= 10) {
+        std::cout << i << " ";
+      } else {
+        std::cout << "0" << i << " ";
+      }
     }
     std::cout << std::endl;
   }
+  std::cout << std::endl;
 
-  /*bitboards testBBs;
+  std::cout << "Enter the numbers, enter an out of range number to finish" << std::endl;
+  int input;
+  char board[64] = {
+    ' ',' ',' ',' ',' ',' ',' ',' ',
+    ' ',' ',' ',' ',' ',' ',' ',' ',
+    ' ',' ',' ',' ',' ',' ',' ',' ',
+    ' ',' ',' ',' ',' ',' ',' ',' ',
+    ' ',' ',' ',' ',' ',' ',' ',' ',
+    ' ',' ',' ',' ',' ',' ',' ',' ',
+    ' ',' ',' ',' ',' ',' ',' ',' ',
+    ' ',' ',' ',' ',' ',' ',' ',' '
+  };
+  while(1) {
+    std::cin >> input;
+    if(input < 0 || input >= 64) {
+      break;
+    }
+    board[input] = 'c';
+  }
+
+  bitboards conversionBB;
+  U64 answer = conversionBB.arrayToBitboard(board, 'c');
+  std::cout << answer << std::endl;
+}
+
+void printMovePossibilities(const bitboards originalBoard, const moveList possibleMoves) {
+  for(int i = 0; i < possibleMoves.length; i++) {
+    std::cout << i << std::endl;
+    bitboards changedBoard = originalBoard;
+    applyMove(&changedBoard, possibleMoves.moves[i]);
+    changedBoard.printStandardArrayBoard();
+  }
+}
+
+int main() {
+  //generateConstBitboard();
+
+  bitboards testBBs;
   testBBs.initStandardBoard();
-  testBBs.printStandardArrayBoard();*/
+  moveList history;
+  moveList possibleMoves;
+  possibleMoves = possibleMovesW(history, testBBs);
+  printMovePossibilities(testBBs, possibleMoves);
   return 0;
 }

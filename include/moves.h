@@ -18,8 +18,21 @@ limitations under the License.
 
 typedef unsigned char byte;
 
+C64 Rank_8 = 18374686479671623680ULL;
+C64 Rank_7 = 71776119061217280ULL;
+
 struct move {
   byte start = 0, end = 0, special = 0; // For special: 1 is castle, 2 is pawn into Queen, 3 is pawn into Rook, 4 is pawn into Knight, 5 is pawn into Bishop
+};
+
+struct extraBitboardsInfo {
+  U64 WhitePieces;
+  U64 BlackPieces;
+
+  void updateFromBitboards(const bitboards game) {
+    WhitePieces = game.WP | game.WN | game.WB | game.WR | game.WQ | game.WK;
+    BlackPieces = game.BP | game.BN | game.BB | game.BR | game.BQ | game.BK;
+  }
 };
 
 struct moveList {
@@ -40,6 +53,23 @@ struct moveList {
     moves[length - 1] = newMove;
     delete [] temp;
   }
+
+  void createMove(byte start, byte end, byte special = 0) {
+    move newMove;
+    newMove.start = start;
+    newMove.end = end;
+    newMove.special = special;
+    this->addMove(newMove);
+  }
+
+  void addMoveList(moveList list) {
+    for(int i = 0; i < list.length; i++) {
+      this->addMove(list.moves[i]);
+    }
+  }
 };
 
-moveList possibleMovesArrayW(moveList history, char game[64]);
+moveList possibleMovesW(moveList history, const bitboards game);
+//moveList possibleMovesArrayW(moveList history, char game[64]);
+
+void applyMove(bitboards* game, move change);
