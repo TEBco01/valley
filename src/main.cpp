@@ -81,7 +81,20 @@ int main() {
 
   bitboards testBBs;
   testBBs.initStandardBoard();
+  moveList possibleMoves2;
+  
+  possibleMoves2.createMove(8,41);
+  possibleMoves2.createMove(52,28);
+  possibleMoves2.createMove(11,27);
+  possibleMoves2.createMove(50,26);
+
+  applyMove(&testBBs,possibleMoves2.moves[0]);
+  applyMove(&testBBs,possibleMoves2.moves[1]);
+  applyMove(&testBBs,possibleMoves2.moves[2]);
+  applyMove(&testBBs,possibleMoves2.moves[3]);
+
   moveList history;
+  history.createMove(11,27);
   moveList possibleMoves;
   possibleMoves = possibleMovesW(history, testBBs);
   printMovePossibilities(testBBs, possibleMoves);

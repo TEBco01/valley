@@ -16,6 +16,7 @@ limitations under the License.
 
 #include <moves.h>
 #include <iostream>
+//#include <bitboard.h> // For testing only
 
 struct infoBoards {
   /*C64 FILE_A = 16843009ULL;
@@ -131,16 +132,78 @@ moveList generateMovesFromBitboard(const U64 toBoard) {
 moveList possibleMovesWPawns(moveList history, const bitboards game, const extraBitboardsInfo info) {
   moveList possibleMoves;
   // Move forward one
-    U64 fw1 = ( (game.WP & ~Rank_7) << 8 ) & ~(info.BlackPieces & info.WhitePieces);
+  U64 fw1 = ( (game.WP & ~Rank_7) << 8 ) & ~(info.BlackPieces | info.WhitePieces);
   moveList fw1List = generateMovesFromBitboard(fw1);
   for(int i = 0; i < fw1List.length; i++) {
     fw1List.moves[i].start = fw1List.moves[i].end + 8;
   }
   possibleMoves.addMoveList(fw1List);
+
   // Move forward two
+  U64 fw2 = ((game.WP & Rank_2) << 16) & ~(info.BlackPieces | info.WhitePieces) & ~((info.BlackPieces | info.WhitePieces) << 8);
+  moveList fw2List = generateMovesFromBitboard(fw2);
+  for(int i = 0; i < fw2List.length; i++) {
+    fw2List.moves[i].start = fw2List.moves[i].end + 16;
+  }
+  possibleMoves.addMoveList(fw2List);
+
   // Attack
+  U64 atL = ((game.WP & ~File_A) << 9) & info.BlackPieces;
+  moveList atLList = generateMovesFromBitboard(atL);
+  for(int i = 0; i < atLList.length; i++) {
+    atLList.moves[i].start = atLList.moves[i].end + 9;
+  }
+  possibleMoves.addMoveList(atLList);
+
+  U64 atR = ((game.WP & ~File_H) << 7) & info.BlackPieces;
+  moveList atRList = generateMovesFromBitboard(atR);
+  for(int i = 0; i < atRList.length; i++) {
+    atRList.moves[i].start = atRList.moves[i].end + 7;
+  }
+  possibleMoves.addMoveList(atRList);
+
   // Promotion
+  U64 pr = ((game.WP & Rank_7) << 8) & ~(info.BlackPieces | info.WhitePieces);
+  moveList prList = generateMovesFromBitboard(pr);
+  int originalLength = prList.length;
+  for(int i = 0; i < originalLength; i++) {
+    byte end = prList.moves[i].end;
+    byte start = end + 8;
+    prList.moves[i].start = start;
+    prList.moves[i].special = 2;
+    for(byte j = 3; j <= 5; j++) {
+      prList.createMove(start, end, j);
+    }
+  }
+  possibleMoves.addMoveList(prList);
+
   // En passant
+  U64 ep = (game.BP & Rank_5) << 8;
+
+  U64 epL = ep & ((game.WP & ~File_A) << 9);
+  moveList epLList = generateMovesFromBitboard(epL);
+  for(int i = 0; i < epLList.length; i++) {
+    epLList.moves[i].start = epLList.moves[i].end + 9;
+    epLList.moves[i].special = 10;
+    if(!(history.moves[history.length-1].end == epLList.moves[i].end + 8)) { // Checks to see if the enemy pawn moved last
+      epLList.removeMove(i);
+      i--;
+    }
+  }
+  possibleMoves.addMoveList(epLList);
+
+  U64 epR = ep & ((game.WP & ~File_H) << 7);
+  moveList epRList = generateMovesFromBitboard(epR);
+  for(int i = 0; i < epRList.length; i++) {
+    epRList.moves[i].start = epRList.moves[i].end + 7;
+    epRList.moves[i].special = 10;
+    if(!(history.moves[history.length-1].end == epRList.moves[i].end + 8)) { // Checks to see if the enemy pawn moved last
+      epRList.removeMove(i);
+      i--;
+    }
+  }
+  possibleMoves.addMoveList(epRList);
+
   return possibleMoves;
 }
 
@@ -158,54 +221,139 @@ moveList possibleMovesW(moveList history, const bitboards game) {
   return possibleMoves;
 }
 
-// Note: lots of room for optimization; no support for speical moves
+void setAllToZero(bitboards* game, U64 endMask) {
+  U64 mask = ~endMask;
+  game->WP &= mask;
+  game->WN &= mask;
+  game->WB &= mask;
+  game->WR &= mask;
+  game->WQ &= mask;
+  game->WK &= mask;
+  game->BP &= mask;
+  game->BN &= mask;
+  game->BB &= mask;
+  game->BR &= mask;
+  game->BQ &= mask;
+  game->BK &= mask;
+}
+
+void checkBoardMove(U64& board, U64 startMask, U64 endMask) {
+  if( board & startMask ) {
+    board &= ~startMask;
+    board |= endMask;
+  }
+}
+
+// Note: lots of room for optimization
 void applyMove(bitboards* game, move change) {
-  if( game->WP & 1ULL << (63ULL - (U64)change.start) ) {
-    game->WP ^= 1ULL << (63ULL - (U64)change.start);
+  U64 startMask = 1ULL << (63ULL - (U64)change.start);
+  U64 endMask = 1ULL << (63ULL - (U64)change.end);
+
+  setAllToZero(game, endMask);
+
+  checkBoardMove(game->WP, startMask, endMask);
+  checkBoardMove(game->WN, startMask, endMask);
+  checkBoardMove(game->WB, startMask, endMask);
+  checkBoardMove(game->WR, startMask, endMask);
+  checkBoardMove(game->WQ, startMask, endMask);
+  checkBoardMove(game->WK, startMask, endMask);
+  checkBoardMove(game->BP, startMask, endMask);
+  checkBoardMove(game->BN, startMask, endMask);
+  checkBoardMove(game->BB, startMask, endMask);
+  checkBoardMove(game->BR, startMask, endMask);
+  checkBoardMove(game->BQ, startMask, endMask);
+  checkBoardMove(game->BK, startMask, endMask);
+
+  switch(change.special) {
+    case 2:
+      setAllToZero(game, endMask);
+      game->WQ |= endMask;
+      break;
+    case 3:
+      setAllToZero(game, endMask);
+      game->WR |= endMask;
+      break;
+    case 4:
+      setAllToZero(game, endMask);
+      game->WN |= endMask;
+      break;
+    case 5:
+      setAllToZero(game, endMask);
+      game->WB |= endMask;
+      break;
+    case 6:
+      setAllToZero(game, endMask);
+      game->BQ |= endMask;
+      break;
+    case 7:
+      setAllToZero(game, endMask);
+      game->BR |= endMask;
+      break;
+    case 8:
+      setAllToZero(game, endMask);
+      game->BN |= endMask;
+      break;
+    case 9:
+      setAllToZero(game, endMask);
+      game->BB |= endMask;
+      break;
+    case 10:
+      setAllToZero(game, endMask >> 8);
+      break;
+    case 11:
+      setAllToZero(game, endMask << 8);
+      break;
+    default:
+      break;
+  }
+
+  /*if( game->WP & square ) {
+    //game->WP ^= 1ULL << (63ULL - (U64)change.start);
+    setAllToZero(game, )
     game->WP |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->WN & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->WN & square ) {
     game->WN ^= 1ULL << (63ULL - (U64)change.start);
     game->WN |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->WB & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->WB & square ) {
     game->WB ^= 1ULL << (63ULL - (U64)change.start);
     game->WB |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->WR & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->WR & square ) {
     game->WR ^= 1ULL << (63ULL - (U64)change.start);
     game->WR |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->WQ & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->WQ & square ) {
     game->WQ ^= 1ULL << (63ULL - (U64)change.start);
     game->WQ |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->WK & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->WK & square ) {
     game->WK ^= 1ULL << (63ULL - (U64)change.start);
     game->WK |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->BP & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->BP & square ) {
     game->BP ^= 1ULL << (63ULL - (U64)change.start);
     game->BP |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->BN & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->BN & square ) {
     game->BN ^= 1ULL << (63ULL - (U64)change.start);
     game->BN |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->BB & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->BB & square ) {
     game->BB ^= 1ULL << (63ULL - (U64)change.start);
     game->BB |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->BR & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->BR & square ) {
     game->BR ^= 1ULL << (63ULL - (U64)change.start);
     game->BR |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->BQ & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->BQ & square ) {
     game->BQ ^= 1ULL << (63ULL - (U64)change.start);
     game->BQ |= 1ULL << (63ULL - (U64)change.end);
   }
-  if( game->BK & 1ULL << (63ULL - (U64)change.start) ) {
+  if( game->BK & square ) {
     game->BK ^= 1ULL << (63ULL - (U64)change.start);
     game->BK |= 1ULL << (63ULL - (U64)change.end);
-  }
+  }*/
 }

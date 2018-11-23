@@ -20,9 +20,13 @@ typedef unsigned char byte;
 
 C64 Rank_8 = 18374686479671623680ULL;
 C64 Rank_7 = 71776119061217280ULL;
+C64 Rank_5 = 1095216660480ULL;
+C64 Rank_2 = 65280ULL;
+C64 File_A = 9259542123273814144ULL;
+C64 File_H = 72340172838076673ULL;
 
 struct move {
-  byte start = 0, end = 0, special = 0; // For special: 1 is castle, 2 is pawn into Queen, 3 is pawn into Rook, 4 is pawn into Knight, 5 is pawn into Bishop
+  byte start = 0, end = 0, special = 0; // For special: 1 is castle, 2 is pawn into white Queen, 3 is pawn into white Rook, 4 is pawn into white Knight, 5 is pawn into white Bishop; black pawns are the same except + 4; 10 is white en passant; 11 is black en passant
 };
 
 struct extraBitboardsInfo {
@@ -66,6 +70,20 @@ struct moveList {
     for(int i = 0; i < list.length; i++) {
       this->addMove(list.moves[i]);
     }
+  }
+
+  void removeMove(int moveNumber) {
+    length--;
+    move* temp = moves;
+    moves = new move[length];
+    for(int i = 0; i < (length + 1); i++) {
+      if(i < moveNumber) {
+        moves[i] = temp[i];
+      } else if (i > moveNumber) {
+        moves[i] = temp[i-1];
+      }
+    }
+    delete [] temp;
   }
 };
 
