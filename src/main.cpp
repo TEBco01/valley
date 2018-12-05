@@ -69,7 +69,7 @@ void generateConstBitboard() {
 
 void printMovePossibilities(const bitboards originalBoard, const moveList possibleMoves) {
   for(int i = 0; i < possibleMoves.length; i++) {
-    std::cout << i << std::endl;
+    std::cout << i << " - (" << (int)possibleMoves.moves[i].start << "," << (int)possibleMoves.moves[i].end << ")" << std::endl;
     bitboards changedBoard = originalBoard;
     applyMove(&changedBoard, possibleMoves.moves[i]);
     changedBoard.printStandardArrayBoard();
@@ -86,15 +86,19 @@ int main() {
   /*possibleMoves2.createMove(8,41);
   possibleMoves2.createMove(52,28);
   possibleMoves2.createMove(11,27);
-  possibleMoves2.createMove(50,26);
+  possibleMoves2.createMove(50,26);*/
+  possibleMoves2.createMove(51,42);
+  possibleMoves2.createMove(52,34);
+  possibleMoves2.createMove(55,46);
 
   applyMove(&testBBs,possibleMoves2.moves[0]);
   applyMove(&testBBs,possibleMoves2.moves[1]);
   applyMove(&testBBs,possibleMoves2.moves[2]);
-  applyMove(&testBBs,possibleMoves2.moves[3]);*/
+  /*applyMove(&testBBs,possibleMoves2.moves[3]);
+  applyMove(&testBBs,possibleMoves2.moves[4]);*/
 
   moveList history;
-  history.createMove(11,27);
+  //history.createMove(11,27);
   moveList possibleMoves;
   possibleMoves = possibleMovesW(history, testBBs);
   printMovePossibilities(testBBs, possibleMoves);
