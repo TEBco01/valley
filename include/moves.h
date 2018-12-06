@@ -21,6 +21,7 @@ typedef unsigned char byte;
 C64 Rank_8 = 18374686479671623680ULL;
 C64 Rank_7 = 71776119061217280ULL;
 C64 Rank_5 = 1095216660480ULL;
+C64 Rank_4 = 4278190080ULL;
 C64 Rank_2 = 65280ULL;
 C64 Rank_1 = 255ULL;
 C64 File_A = 9259542123273814144ULL;
@@ -91,6 +92,7 @@ struct moveList {
 };
 
 moveList possibleMovesW(moveList history, const bitboards game);
+moveList possibleMovesB(moveList history, const bitboards game);
 //moveList possibleMovesArrayW(moveList history, char game[64]);
 
 void applyMove(bitboards* game, move change);
