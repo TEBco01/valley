@@ -21,4 +21,4 @@ obj:
 	mkdir $@
 
 clean:
-	$(RM) $(OBJ)
+	$(RM) $(OBJ) $(EXE)

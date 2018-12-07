@@ -18,6 +18,7 @@ limitations under the License.
 #include <bitboard.h>
 #include <moves.h>
 #include <cstdlib> // For random
+#include <game.h>
 
 void printArray(char array[64]) {
   for(int y = 0, i = 0; y < 8; y++) {
@@ -87,15 +88,34 @@ int rangeRandomAlg2 (int min, int max){
     return min + x % n;
 }
 
-int main() {
-  //generateConstBitboard();
 
+U64 Perft(int depth, game Game)
+{
+    U64 nodes = 0;
+
+    if (depth == 0) return 1;
+
+    moveList moves = Game.generateLegalMoves();
+    for (int i = 0; i < moves.length; i++) {
+        Game.makeMove(moves.moves[i - 1]);
+        nodes += Perft(depth - 1, Game);
+        Game.undoMove();
+    }
+    return nodes;
+}
+
+int main() {
+  game Game;
+  std::cout << Perft(2, Game) << std::endl;;
+
+  //generateConstBitboard();
+/*
   bitboards testBBs;
   testBBs.initStandardBoard();
   moveList possibleMoves2;
 
   srand (time(NULL));
-
+*/
   /*possibleMoves2.createMove(8,41);
   possibleMoves2.createMove(52,28);
   possibleMoves2.createMove(11,27);
@@ -109,7 +129,7 @@ int main() {
   applyMove(&testBBs,possibleMoves2.moves[2]);*/
   /*applyMove(&testBBs,possibleMoves2.moves[3]);
   applyMove(&testBBs,possibleMoves2.moves[4]);*/
-
+/*
   moveList history;
   //history.createMove(11,27);
   moveList possibleMoves;
@@ -135,5 +155,6 @@ int main() {
     std::cout << "-----" << std::endl;
   }
   //printMovePossibilities(testBBs, possibleMoves);
+  */
   return 0;
 }

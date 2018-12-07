@@ -726,3 +726,66 @@ void applyMove(bitboards* game, move change) {
     game->BK |= 1ULL << (63ULL - (U64)change.end);
   }*/
 }
+
+void unapplyMove(bitboards* game, move change) {
+  U64 startMask = 1ULL << (63ULL - (U64)change.start);
+  U64 endMask = 1ULL << (63ULL - (U64)change.end);
+
+  setAllToZero(game, startMask);
+
+  checkBoardMove(game->WP, endMask, startMask);
+  checkBoardMove(game->WN, endMask, startMask);
+  checkBoardMove(game->WB, endMask, startMask);
+  checkBoardMove(game->WR, endMask, startMask);
+  checkBoardMove(game->WQ, endMask, startMask);
+  checkBoardMove(game->WK, endMask, startMask);
+  checkBoardMove(game->BP, endMask, startMask);
+  checkBoardMove(game->BN, endMask, startMask);
+  checkBoardMove(game->BB, endMask, startMask);
+  checkBoardMove(game->BR, endMask, startMask);
+  checkBoardMove(game->BQ, endMask, startMask);
+  checkBoardMove(game->BK, endMask, startMask);
+
+  switch(change.special) {
+    case 2:
+      setAllToZero(game, startMask);
+      game->WQ |= startMask;
+      break;
+    case 3:
+      setAllToZero(game, startMask);
+      game->WR |= startMask;
+      break;
+    case 4:
+      setAllToZero(game, startMask);
+      game->WN |= startMask;
+      break;
+    case 5:
+      setAllToZero(game, startMask);
+      game->WB |= startMask;
+      break;
+    case 6:
+      setAllToZero(game, startMask);
+      game->BQ |= startMask;
+      break;
+    case 7:
+      setAllToZero(game, startMask);
+      game->BR |= startMask;
+      break;
+    case 8:
+      setAllToZero(game, startMask);
+      game->BN |= startMask;
+      break;
+    case 9:
+      setAllToZero(game, startMask);
+      game->BB |= startMask;
+      break;
+    case 10:
+      setAllToZero(game, startMask >> 8);
+      break;
+    case 11:
+      setAllToZero(game, startMask << 8);
+      break;
+    default:
+      break;
+  }
+}

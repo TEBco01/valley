@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+#pragma once
 
 #include <bitboard.h>
 
@@ -96,3 +97,4 @@ moveList possibleMovesB(moveList history, const bitboards game);
 //moveList possibleMovesArrayW(moveList history, char game[64]);
 
 void applyMove(bitboards* game, move change);
+void unapplyMove(bitboards* game, move change);
