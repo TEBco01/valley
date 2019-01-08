@@ -88,6 +88,69 @@ int rangeRandomAlg2 (int min, int max){
     return min + x % n;
 }
 
+std::string squareToAlgebraic(const byte square) {
+  std::string first;
+  std::string second;
+  switch(square % 8) {
+    case 0:
+      first = "a";
+      break;
+    case 1:
+      first = "b";
+      break;
+    case 2:
+      first = "c";
+      break;
+    case 3:
+      first = "d";
+      break;
+    case 4:
+      first = "e";
+      break;
+    case 5:
+      first = "f";
+      break;
+    case 6:
+      first = "g";
+      break;
+    case 7:
+      first = "h";
+      break;
+  }
+
+  switch(square / 8) {
+    case 0:
+      second = "8";
+      break;
+    case 1:
+      second = "7";
+      break;
+    case 2:
+      second = "6";
+      break;
+    case 3:
+      second = "5";
+      break;
+    case 4:
+      second = "4";
+      break;
+    case 5:
+      second = "3";
+      break;
+    case 6:
+      second = "2";
+      break;
+    case 7:
+      second = "1";
+      break;
+  }
+
+  return first + second;
+}
+
+std::string moveToAlgebraic(const move change) {
+  return squareToAlgebraic(change.start) + squareToAlgebraic(change.end);
+}
 
 U64 Perft(int depth, game Game)
 {
@@ -95,7 +158,7 @@ U64 Perft(int depth, game Game)
 
     if (depth == 0) return 1;
 
-    moveList moves = Game.generateLegalMoves();
+    moveList moves = Game.generateSemilegalMoves();
     for (int i = 0; i < moves.length; i++) {
         Game.makeMove(moves.moves[i - 1]);
         nodes += Perft(depth - 1, Game);
@@ -106,16 +169,16 @@ U64 Perft(int depth, game Game)
 
 int main() {
   game Game;
-  std::cout << Perft(2, Game) << std::endl;;
+  std::cout << Perft(3, Game) << std::endl;;
 
   //generateConstBitboard();
-/*
-  bitboards testBBs;
+
+  /*bitboards testBBs;
   testBBs.initStandardBoard();
   moveList possibleMoves2;
 
-  srand (time(NULL));
-*/
+  srand (time(NULL));*/
+
   /*possibleMoves2.createMove(8,41);
   possibleMoves2.createMove(52,28);
   possibleMoves2.createMove(11,27);
@@ -129,19 +192,48 @@ int main() {
   applyMove(&testBBs,possibleMoves2.moves[2]);*/
   /*applyMove(&testBBs,possibleMoves2.moves[3]);
   applyMove(&testBBs,possibleMoves2.moves[4]);*/
-/*
-  moveList history;
-  //history.createMove(11,27);
+
+  /*moveList history;
+  history.createMove(52,36);
+  history.createMove(8,16);
+  history.createMove(59,31);
+
+  for(int i = 0; i < history.length; i++) {
+    applyMove(&testBBs, history.moves[i]);
+  }
+
   moveList possibleMoves;
   //possibleMoves = possibleMovesW(history, testBBs);
   bitboards tempBoard = testBBs;
-  for(int i = 0; i < 5; i++) {
+
+  testBBs.printStandardArrayBoard();*/
+
+  /*moveList whiteMoves;
+  whiteMoves = possibleMovesW(possibleMoves, tempBoard);
+  for(int i = 0; i < whiteMoves.length; i++) {
+    applyMove(&tempBoard, whiteMoves.moves[i]);
+    game tempGame(tempBoard);
+    std::cout << moveToAlgebraic(whiteMoves.moves[i]) << ": " << Perft(1, tempGame) << std::endl;
+    tempBoard = testBBs;
+  }*/
+
+  /*moveList blackMoves;
+  blackMoves = possibleMovesB(possibleMoves, tempBoard);
+  for(int i = 0; i < blackMoves.length; i++) {
+    applyMove(&tempBoard, blackMoves.moves[i]);
+    game tempGame(tempBoard);
+    std::cout << moveToAlgebraic(blackMoves.moves[i]) << ": " << Perft(1, tempGame) << std::endl;
+    tempBoard = testBBs;
+  }*/
+
+  /*for(int i = 0; i < 5; i++) {
     moveList whiteMoves;
     whiteMoves = possibleMovesW(possibleMoves, tempBoard);
     int selection = rangeRandomAlg2(0, whiteMoves.length - 1);
     possibleMoves.addMove(whiteMoves.moves[selection]);
     applyMove(&tempBoard, whiteMoves.moves[selection]);
 
+    std::cout << moveToAlgebraic(whiteMoves.moves[selection]) << std::endl;
     tempBoard.printStandardArrayBoard();
     std::cout << "-----" << std::endl;
 
@@ -151,10 +243,11 @@ int main() {
     possibleMoves.addMove(blackMoves.moves[selection]);
     applyMove(&tempBoard, blackMoves.moves[selection]);
 
+    std::cout << moveToAlgebraic(blackMoves.moves[selection]) << std::endl;
     tempBoard.printStandardArrayBoard();
     std::cout << "-----" << std::endl;
-  }
+  }*/
   //printMovePossibilities(testBBs, possibleMoves);
-  */
+
   return 0;
 }

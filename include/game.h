@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <bitboard.h>
 #include <moves.h>
+#include <iostream> // For debugging only
 
 struct game {
   bitboards boards;
@@ -42,7 +43,26 @@ struct game {
     blacksTurn ^= 1;
   }
 
+  bool isGameLegal() {
+    moveList moves = generateSemilegalMoves();
+    for(int i = 0; i < moves.length; i++) {
+      if(attackOnKing(moves.moves[i], boards)) return false;
+    }
+    return true;
+  }
+
   moveList generateLegalMoves() {
+    moveList moves = generateSemilegalMoves();
+    moveList returnedMoves;
+    for(int i = 0; i < moves.length; i++) {
+      makeMove(moves.moves[i]);
+      if(isGameLegal()) returnedMoves.addMove(moves.moves[i]);
+      undoMove();
+    }
+    return returnedMoves;
+  }
+
+  moveList generateSemilegalMoves() {
     if(blacksTurn) {
       return possibleMovesB(history, boards);
     } else {

@@ -16,6 +16,7 @@ limitations under the License.
 #pragma once
 
 #include <bitboard.h>
+#include <string>
 
 typedef unsigned char byte;
 
@@ -98,3 +99,5 @@ moveList possibleMovesB(moveList history, const bitboards game);
 
 void applyMove(bitboards* game, move change);
 void unapplyMove(bitboards* game, move change);
+
+bool attackOnKing(move change, const bitboards game);

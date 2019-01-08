@@ -789,3 +789,12 @@ void unapplyMove(bitboards* game, move change) {
       break;
   }
 }
+
+bool attackOnKing(move change, const bitboards game) {
+  U64 endMask = 1ULL << (63ULL - (U64)change.end);
+
+  if(game.WK & endMask || game.BK & endMask) {
+    return true;
+  }
+  return false;
+}
