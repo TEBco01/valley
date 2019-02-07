@@ -64,53 +64,6 @@ class linkedMoveList {
 		moveNode *head, *tail;
 };
 
-void linkedMoveList::create(move value){
-	moveNode *temp = new moveNode;
-	temp->data = value;
-	temp->next = NULL;
-	if(head == NULL)
-	{
-		head = temp;
-		tail = temp;
-		temp = NULL;
-	}
-	else
-	{
-		tail->next = temp;
-		tail = temp;
-	}
-};
-
-void linkedMoveList::remove(int pos){
-	moveNode *current = new moveNode;
-	moveNode *previous = new moveNode;
-	current = head;
-	for(int i = 1; i < pos; i++){
-		previous = current;
-		current = current->next;
-	}
-	previous->next = current->next;
-	delete current;
-};
-
-linkedMoveList::~linkedMoveList(){
-	while(head->next != NULL){
-		moveNode *temp = new moveNode;
-		temp = head;
-		head = head->next;
-		delete temp;
-	}
-};
-
-linkedMoveList linkedMoveList::operator+(linkedMoveList b){
-	linkedMoveList a;
-	a.head = this->head;
-	a.tail = this->tail;
-	a.tail->next = b.head;
-	a.tail = b.tail;
-	return a;
-};
-
 struct moveList {
   move* moves;
   int length = 0;
