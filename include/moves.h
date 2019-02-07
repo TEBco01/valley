@@ -56,8 +56,9 @@ class linkedMoveList {
 			head = NULL;
 			tail = NULL;
 		};
-		void create(move value);
+		void add(move value);
 		void remove(int pos);
+		void create(byte start, byte end, byte special);
 		linkedMoveList operator+(linkedMoveList b);
 		void operator=(linkedMoveList b);
 		~linkedMoveList();
