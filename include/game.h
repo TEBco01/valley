@@ -20,9 +20,38 @@ limitations under the License.
 #include <moves.h>
 #include <iostream> // For debugging only
 
+struct boardNode {
+  bitboards boards;
+  boardNode* last;
+};
+
+class boardStack {
+  boardNode* tail = NULL;
+
+public:
+  void push(bitboards boards);
+  bitboards pop();
+};
+
+void boardStack::push(bitboards boards) {
+  boardNode* node = new boardNode();
+  node->boards = boards;
+  node->last = tail;
+  tail = node;
+}
+
+bitboards boardStack::pop() {
+ boardNode* newTail = tail->last;
+ bitboards boards = tail->boards;
+ delete tail;
+ tail = newTail;
+ return boards;
+}
+
 struct game {
   bitboards boards;
   moveList history;
+  boardStack boardHistory;
   bool blacksTurn = 0;
 
   game() {
@@ -34,11 +63,13 @@ struct game {
   void makeMove(move moveMade) {
     applyMove(&boards, moveMade);
     history.addMove(moveMade);
+    boardHistory.push(boards);
     blacksTurn ^= 1;
   }
   void undoMove(/*move moveUnmade*/) {
-    move moveUnmade = history.moves[history.length - 1];
-    unapplyMove(&boards, moveUnmade);
+    //move moveUnmade = history.moves[history.length - 1];
+    //unapplyMove(&boards, moveUnmade);
+    boards = boardHistory.pop();
     history.removeMove(history.length - 1);
     blacksTurn ^= 1;
   }
