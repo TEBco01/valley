@@ -75,6 +75,11 @@ void linkedMoveList::remove(int pos){
 	delete current;
 };
 
+void linkedMoveList::operator=(linkedMoveList b){
+	this->head = b.head;
+	this->tail = b.tail;
+};
+
 linkedMoveList::~linkedMoveList(){
 	while(head->next != NULL){
 		moveNode *temp = new moveNode;

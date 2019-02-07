@@ -59,6 +59,7 @@ class linkedMoveList {
 		void create(move value);
 		void remove(int pos);
 		linkedMoveList operator+(linkedMoveList b);
+		void operator=(linkedMoveList b);
 		~linkedMoveList();
 	private:
 		moveNode *head, *tail;
