@@ -1,0 +1,17 @@
+Move generation
+---------------
+ </ Pawn
+ </ King
+ </ Queen
+ </ Knight
+ </ Bishop
+ </ Rook
+ 
+To-Do
+---------------
+    Mate checking
+    Castling
+    Memoizing Generator in Game
+ </ Perft Function
+    Cleanup
+    Refactor
