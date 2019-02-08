@@ -46,7 +46,7 @@ bool isLowercase(char character) {
   }
 }
 
-void linkedMoveList::create(move value){
+void linkedMoveList::add(move value){
 	moveNode *temp = new moveNode;
 	temp->data = value;
 	temp->next = NULL;
@@ -61,6 +61,14 @@ void linkedMoveList::create(move value){
 		tail->next = temp;
 		tail = temp;
 	}
+};
+
+void linkedMoveList::create(byte start, byte end, byte special = 0){
+	move newMove;
+	newMove.start = start;
+	newMove.end = end;
+	newMove.special = special;
+	this->add(newMove);
 };
 
 void linkedMoveList::remove(int pos){
