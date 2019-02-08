@@ -106,6 +106,10 @@ linkedMoveList linkedMoveList::operator+(linkedMoveList b){
 	return a;
 };
 
+void linkedMoveList::operator+=(linkedMoveList b){
+	 *this = *this + b;
+};
+
 moveList possibleMovesArrayWPawns(moveList history, char game[64]) {
   moveList possibleMoves;
   for (int i=8; i < 56; i++) {
