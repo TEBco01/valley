@@ -61,9 +61,9 @@ struct game {
     boards = newBoards;
   }
   void makeMove(move moveMade) {
+    boardHistory.push(boards);
     applyMove(&boards, moveMade);
     history.addMove(moveMade);
-    boardHistory.push(boards);
     blacksTurn ^= 1;
   }
   void undoMove(/*move moveUnmade*/) {
