@@ -110,6 +110,51 @@ void linkedMoveList::operator+=(linkedMoveList b){
 	 *this = *this + b;
 };
 
+linkedMoveList possibleMovesArrayWPawns(linkedMoveList history, char game[64]) {
+  linkedMoveList possibleMoves;
+  for (int i=8; i < 56; i++) {
+    if(game[i] == 'P') {
+
+      if(i > 15) { // Not in range of end of board
+        if(game[i - 8] == ' ') { // Is the space in front open
+          move newMove;
+          newMove.start = i;
+          newMove.end = i - 8;
+          possibleMoves.add(newMove);
+
+          if(i > 47) { // In starting row
+            if(game[i - 16] == ' ') { // and clear two spaces ahead
+              move newMove2;
+              newMove2.start = i;
+              newMove2.end = i - 16;
+              possibleMoves.add(newMove2);
+            }
+          }
+
+        }
+
+        if(i%8 != 0 && isLowercase(game[i - 9])) { // Diagonal left attack
+          move newMove;
+          newMove.start = i;
+          newMove.end = i - 9;
+          possibleMoves.add(newMove);
+        }
+        if(i%8 != 7 && isLowercase(game[i - 7])) { // Diagonal right attack
+          move newMove;
+          newMove.start = i;
+          newMove.end = i - 7;
+          possibleMoves.add(newMove);
+        }
+      }
+      else { // We are in range of end of board
+
+      }
+
+    }
+  }
+  return possibleMoves;
+}
+
 moveList possibleMovesArrayWPawns(moveList history, char game[64]) {
   moveList possibleMoves;
   for (int i=8; i < 56; i++) {
@@ -153,7 +198,7 @@ moveList possibleMovesArrayWPawns(moveList history, char game[64]) {
     }
   }
   return possibleMoves;
-}
+} //remove later
 
 moveList possibleMovesArrayW(moveList history, char game[64]) {
   moveList possibleMoves;
