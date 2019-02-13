@@ -88,7 +88,7 @@ struct game {
 
   bool isGameLegal() {
     linkedMoveList moves = generateSemilegalMoves();
-    
+
     moveNode* i = moves.head;
     while(i != NULL) {
       if(attackOnKing(i->data, boards)) return false;
@@ -104,7 +104,7 @@ struct game {
     moveNode* i = moves.head;
     while(i != NULL) {
       makeMove(i->data);
-      if(isGameLegal()) returnedMoves.addMove(i->data);
+      if(isGameLegal()) returnedMoves.add(i->data);
       undoMove();
       i = i->next;
     }

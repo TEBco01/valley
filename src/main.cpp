@@ -158,11 +158,14 @@ U64 Perft(int depth, game Game)
 
     if (depth == 0) return 1;
 
-    moveList moves = Game.generateSemilegalMoves();
-    for (int i = 0; i < moves.length; i++) {
-        Game.makeMove(moves.moves[i - 1]);
-        nodes += Perft(depth - 1, Game);
-        Game.undoMove();
+    linkedMoveList moves = Game.generateSemilegalMoves();
+
+    moveNode* i = moves.head;
+    while(i != NULL) {
+      Game.makeMove(i->data);
+      nodes += Perft(depth - 1, Game);
+      Game.undoMove();
+      i = i->next;
     }
     return nodes;
 }
