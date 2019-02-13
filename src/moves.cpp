@@ -88,13 +88,29 @@ void linkedMoveList::operator=(linkedMoveList b){
 	this->tail = b.tail;
 };
 
-linkedMoveList::~linkedMoveList(){
-	while(head->next != NULL){
-		moveNode *temp = new moveNode;
-		temp = head;
-		head = head->next;
-		delete temp;
+/*linkedMoveList::~linkedMoveList(){
+  moveNode *cur;
+  moveNode *temp;
+  cur = head;
+	while(temp != NULL){
+    temp = cur->next;
+		delete cur;
+    cur = temp;
 	}
+};*/
+
+void linkedMoveList::deleteList(){
+  moveNode *cur;
+  moveNode *temp;
+  cur = head;
+	while(temp != NULL){
+    temp = cur->next;
+		delete cur;
+    cur = temp;
+	}
+
+  head = NULL;
+  tail = NULL;
 };
 
 linkedMoveList linkedMoveList::operator+(linkedMoveList b){

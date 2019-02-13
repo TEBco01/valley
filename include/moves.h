@@ -59,11 +59,12 @@ class linkedMoveList {
 		void add(move value);
 		void remove(int pos);
 		void create(byte start, byte end, byte special);
+    void create(byte start, byte end) {this->create(start, end, 0);}
 		linkedMoveList operator+(linkedMoveList b);
 		void operator=(linkedMoveList b);
 		void operator+=(linkedMoveList b);
-		~linkedMoveList();
-	private:
+		//~linkedMoveList();
+    void deleteList(); // Manual deconstruction
 		moveNode *head, *tail;
 };
 
