@@ -136,6 +136,16 @@ linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
   return moves;
 }
 
+void constantShiftGenerator(U64 board, int shift, &moveList possibleMoves) {
+  linkedMoveList moves = generateMovesFromBitboard(board);
+  moveNode* i = moves.head;
+  while(i != NULL) {
+    i->data.start = i->data.end + shift;
+    i = i->next;
+  }
+  possibleMoves += moves;
+}
+
 moveList possibleMovesWPawns(moveList history, const bitboards game, const extraBitboardsInfo info) {
   moveList possibleMoves;
   // Move forward one
