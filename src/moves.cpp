@@ -126,11 +126,11 @@ void linkedMoveList::operator+=(linkedMoveList b){
 	 *this = *this + b;
 };
 
-moveList generateMovesFromBitboard(const U64 toBoard) {
-  moveList moves;
+linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
+  linkedMoveList moves;
   for (int i=0; i < 64; i++) {
     if( toBoard & 1ULL << (63ULL - (U64)i) ) {
-      moves.createMove(0, i);
+      moves.create(0, i);
     }
   }
   return moves;
@@ -292,72 +292,88 @@ moveList possibleMovesBPawns(moveList history, const bitboards game, const extra
   return possibleMoves;
 }
 
-moveList possibleMovesKnights(const U64 kBoard, const U64 FriendlyPieces) {
-  moveList possibleMoves;
+linkedMoveList possibleMovesKnights(const U64 kBoard, const U64 FriendlyPieces) {
+  linkedMoveList possibleMoves;
 
   //Left two up one
   U64 l2u1 = ((kBoard & ~(File_A | File_B | Rank_8)) << 10) & ~FriendlyPieces; // Posible trival optimization by precomupting const bitboard combinations
-  moveList l2u1List = generateMovesFromBitboard(l2u1);
-  for(int i = 0; i < l2u1List.length; i++) {
-    l2u1List.moves[i].start = l2u1List.moves[i].end + 10;
+  linkedMoveList l2u1List = generateMovesFromBitboard(l2u1);
+  moveNode* i = l2u1List.head;
+  while(i != NULL) {
+    i->data.start = i->data.end + 10;
+    i = i->next;
   }
-  possibleMoves.addMoveList(l2u1List);
+  possibleMoves += l2u1List;
 
   //Right two up one
   U64 r2u1 = ((kBoard & ~(File_G | File_H | Rank_8)) << 6) & ~FriendlyPieces;
-  moveList r2u1List = generateMovesFromBitboard(r2u1);
-  for(int i = 0; i < l2u1List.length; i++) {
-    r2u1List.moves[i].start = r2u1List.moves[i].end + 6;
+  linkedMoveList r2u1List = generateMovesFromBitboard(r2u1);
+  i = r2u1List.head;
+  while(i != NULL) {
+    i->data.start = i->data.end + 6;
+    i = i->next;
   }
-  possibleMoves.addMoveList(r2u1List);
+  possibleMoves += r2u1List;
 
   //Left one up two
   U64 l1u2 = ((kBoard & ~(File_A | Rank_7 | Rank_8)) << 17) & ~FriendlyPieces;
-  moveList l1u2List = generateMovesFromBitboard(l1u2);
-  for(int i = 0; i < l1u2List.length; i++) {
-    l1u2List.moves[i].start = l1u2List.moves[i].end + 17;
+  linkedMoveList l1u2List = generateMovesFromBitboard(l1u2);
+  i = l1u2List.head;
+  while(i != NULL) {
+    i->data.start = i->data.end + 17;
+    i = i->next;
   }
-  possibleMoves.addMoveList(l1u2List);
+  possibleMoves += l1u2List;
 
   //Right one up two
   U64 r1u2 = ((kBoard & ~(File_H | Rank_7 | Rank_8)) << 15) & ~FriendlyPieces;
-  moveList r1u2List = generateMovesFromBitboard(r1u2);
-  for(int i = 0; i < r1u2List.length; i++) {
-    r1u2List.moves[i].start = r1u2List.moves[i].end + 15;
+  linkedMoveList r1u2List = generateMovesFromBitboard(r1u2);
+  i = r1u2List.head;
+  while(i != NULL) {
+    i->data.start = i->data.end + 15;
+    i = i->next;
   }
-  possibleMoves.addMoveList(r1u2List);
+  possibleMoves += r1u2List;
 
   //Left two down one
   U64 l2d1 = ((kBoard & ~(File_A | File_B | Rank_1)) >> 6) & ~FriendlyPieces;
-  moveList l2d1List = generateMovesFromBitboard(l2d1);
-  for(int i = 0; i < l2d1List.length; i++) {
-    l2d1List.moves[i].start = l2d1List.moves[i].end - 6;
+  linkedMoveList l2d1List = generateMovesFromBitboard(l2d1);
+  i = l2d1List.head;
+  while(i != NULL) {
+    i->data.start = i->data.end - 6;
+    i = i->next;
   }
-  possibleMoves.addMoveList(l2d1List);
+  possibleMoves += l2d1List;
 
   //Right two down one
   U64 r2d1 = ((kBoard & ~(File_G | File_H | Rank_1)) >> 10) & ~FriendlyPieces;
-  moveList r2d1List = generateMovesFromBitboard(r2d1);
-  for(int i = 0; i < r2d1List.length; i++) {
-    r2d1List.moves[i].start = r2d1List.moves[i].end - 10;
+  linkedMoveList r2d1List = generateMovesFromBitboard(r2d1);
+  i = l2d1List.head;
+  while(i != NULL) {
+    i->data.start = i->data.end - 10;
+    i = i->next;
   }
-  possibleMoves.addMoveList(r2d1List);
+  possibleMoves += l2d1List;
 
   //Left one down two
   U64 l1d2 = ((kBoard & ~(File_A | Rank_1 | Rank_2)) >> 15) & ~FriendlyPieces;
-  moveList l1d2List = generateMovesFromBitboard(l1d2);
-  for(int i = 0; i < l1d2List.length; i++) {
-    l1d2List.moves[i].start = l1d2List.moves[i].end - 15;
+  linkedMoveList l1d2List = generateMovesFromBitboard(l1d2);
+  i = l1d2List.head;
+  while(i != NULL) {
+    i->data.start = i->data.end - 15;
+    i = i->next;
   }
-  possibleMoves.addMoveList(l1d2List);
+  possibleMoves += l1d2List;
 
   //Right one down two
   U64 r1d2 = ((kBoard & ~(File_H | Rank_1 | Rank_2)) >> 17) & ~FriendlyPieces;
-  moveList r1d2List = generateMovesFromBitboard(r1d2);
-  for(int i = 0; i < r1d2List.length; i++) {
-    r1d2List.moves[i].start = r1d2List.moves[i].end - 17;
+  linkedMoveList r1d2List = generateMovesFromBitboard(r1d2);
+  i = r1d2List.head;
+  while(i != NULL) {
+    i->data.start = i->data.end - 17;
+    i = i->next;
   }
-  possibleMoves.addMoveList(r1d2List);
+  possibleMoves += r1d2List;
 
   return possibleMoves;
 }
