@@ -146,80 +146,91 @@ void constantShiftGenerator(U64 board, int shift, &moveList possibleMoves) {
   possibleMoves += moves;
 }
 
-moveList possibleMovesWPawns(moveList history, const bitboards game, const extraBitboardsInfo info) {
+void constantShiftGenerator(U64 board, int shift, int special, &moveList possibleMoves) {
+  linkedMoveList moves = generateMovesFromBitboard(board);
+  moveNode* i = moves.head;
+  while(i != NULL) {
+    i->data.start = i->data.end + shift;
+    i->data.special = special;
+    i = i->next;
+  }
+  possibleMoves += moves;
+}
+
+moveList possibleMovesWPawns(linkedMoveList history, const bitboards game, const extraBitboardsInfo info) {
   moveList possibleMoves;
   // Move forward one
   U64 fw1 = ( (game.WP & ~Rank_7) << 8 ) & ~(info.BlackPieces | info.WhitePieces);
-  moveList fw1List = generateMovesFromBitboard(fw1);
-  for(int i = 0; i < fw1List.length; i++) {
-    fw1List.moves[i].start = fw1List.moves[i].end + 8;
-  }
-  possibleMoves.addMoveList(fw1List);
+  constantShiftGenerator(fw1, 8, &possibleMoves);
 
   // Move forward two
   U64 fw2 = ((game.WP & Rank_2) << 16) & ~(info.BlackPieces | info.WhitePieces) & ~((info.BlackPieces | info.WhitePieces) << 8);
-  moveList fw2List = generateMovesFromBitboard(fw2);
-  for(int i = 0; i < fw2List.length; i++) {
-    fw2List.moves[i].start = fw2List.moves[i].end + 16;
-  }
-  possibleMoves.addMoveList(fw2List);
+  constantShiftGenerator(fw2, 16, &possibleMoves);
 
   // Attack
   U64 atL = ((game.WP & ~File_A) << 9) & info.BlackPieces;
-  moveList atLList = generateMovesFromBitboard(atL);
-  for(int i = 0; i < atLList.length; i++) {
-    atLList.moves[i].start = atLList.moves[i].end + 9;
-  }
-  possibleMoves.addMoveList(atLList);
+  constantShiftGenerator(atL, 9, &possibleMoves);
 
   U64 atR = ((game.WP & ~File_H) << 7) & info.BlackPieces;
-  moveList atRList = generateMovesFromBitboard(atR);
-  for(int i = 0; i < atRList.length; i++) {
-    atRList.moves[i].start = atRList.moves[i].end + 7;
-  }
-  possibleMoves.addMoveList(atRList);
+  constantShiftGenerator(atR, 7, &possibleMoves);
 
   // Promotion
   U64 pr = ((game.WP & Rank_7) << 8) & ~(info.BlackPieces | info.WhitePieces);
-  moveList prList = generateMovesFromBitboard(pr);
-  int originalLength = prList.length;
-  for(int i = 0; i < originalLength; i++) {
-    byte end = prList.moves[i].end;
-    byte start = end + 8;
-    prList.moves[i].start = start;
-    prList.moves[i].special = 2;
+  linkedMoveList prList = generateMovesFromBitboard(pr);
+  linkedMoveList prExtraList;
+  moveNode* i = prList.head;
+  while(i != NULL) {
+    i->data.start = i->data.end + 8;
+    i->data.special = 2;
     for(byte j = 3; j <= 5; j++) {
-      prList.createMove(start, end, j);
+      prExtraList.create(i->start, i->end, j);
     }
+    i = i->next;
   }
-  possibleMoves.addMoveList(prList);
+  possibleMoves += prList;
+  possibleMoves += prExtraList;
 
   // En passant
   U64 ep = (game.BP & Rank_5) << 8;
 
   U64 epL = ep & ((game.WP & ~File_A) << 9);
   moveList epLList = generateMovesFromBitboard(epL);
-  for(int i = 0; i < epLList.length; i++) {
-    epLList.moves[i].start = epLList.moves[i].end + 9;
-    epLList.moves[i].special = 10;
-    if(!(history.moves[history.length-1].end == epLList.moves[i].end + 8)) { // Checks to see if the enemy pawn moved last
-      epLList.removeMove(i);
-      i--;
+
+  moveNode* i = epLList.head;
+  moveNode* previous = NULL;
+  while(i != NULL) {
+    if(!(history.tail->data.end == i->data.end + 8)) {
+      previous->next = i->next;
+      delete i;
+      i = previous;
     }
+    else {
+      i->data.start = i->data.end + 9;
+      i->data.special = 10;
+    }
+    previous = i;
+    i = i->next;
   }
-  possibleMoves.addMoveList(epLList);
+  possibleMoves += epLList;
 
   U64 epR = ep & ((game.WP & ~File_H) << 7);
-  moveList epRList = generateMovesFromBitboard(epR);
-  for(int i = 0; i < epRList.length; i++) {
-    epRList.moves[i].start = epRList.moves[i].end + 7;
-    epRList.moves[i].special = 10;
-    if(!(history.moves[history.length-1].end == epRList.moves[i].end + 8)) { // Checks to see if the enemy pawn moved last
-      epRList.removeMove(i);
-      i--;
+  linkedMoveList epRList = generateMovesFromBitboard(epR);
+  moveNode* i = epRList.head;
+  moveNode* previous = NULL;
+  while(i != NULL) {
+    if(!(history.tail->data.end == i->data.end + 8)) {
+      previous->next = i->next;
+      delete i;
+      i = previous;
     }
+    else {
+      i->data.start = i->data.end + 9;
+      i->data.special = 10;
+    }
+    previous = i;
+    i = i->next;
   }
-  possibleMoves.addMoveList(epRList);
+  possibleMoves += epRList;
 
   return possibleMoves;
 }
