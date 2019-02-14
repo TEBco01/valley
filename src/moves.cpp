@@ -307,83 +307,35 @@ linkedMoveList possibleMovesKnights(const U64 kBoard, const U64 FriendlyPieces) 
 
   //Left two up one
   U64 l2u1 = ((kBoard & ~(File_A | File_B | Rank_8)) << 10) & ~FriendlyPieces; // Posible trival optimization by precomupting const bitboard combinations
-  linkedMoveList l2u1List = generateMovesFromBitboard(l2u1);
-  moveNode* i = l2u1List.head;
-  while(i != NULL) {
-    i->data.start = i->data.end + 10;
-    i = i->next;
-  }
-  possibleMoves += l2u1List;
+  constantShiftGenerator(l2u1, 10, &possibleMoves);
 
   //Right two up one
   U64 r2u1 = ((kBoard & ~(File_G | File_H | Rank_8)) << 6) & ~FriendlyPieces;
-  linkedMoveList r2u1List = generateMovesFromBitboard(r2u1);
-  i = r2u1List.head;
-  while(i != NULL) {
-    i->data.start = i->data.end + 6;
-    i = i->next;
-  }
-  possibleMoves += r2u1List;
+  constantShiftGenerator(r2u1, 6, &possibleMoves);
 
   //Left one up two
   U64 l1u2 = ((kBoard & ~(File_A | Rank_7 | Rank_8)) << 17) & ~FriendlyPieces;
-  linkedMoveList l1u2List = generateMovesFromBitboard(l1u2);
-  i = l1u2List.head;
-  while(i != NULL) {
-    i->data.start = i->data.end + 17;
-    i = i->next;
-  }
-  possibleMoves += l1u2List;
+  constantShiftGenerator(l1u2, 17, &possibleMoves);
 
   //Right one up two
   U64 r1u2 = ((kBoard & ~(File_H | Rank_7 | Rank_8)) << 15) & ~FriendlyPieces;
-  linkedMoveList r1u2List = generateMovesFromBitboard(r1u2);
-  i = r1u2List.head;
-  while(i != NULL) {
-    i->data.start = i->data.end + 15;
-    i = i->next;
-  }
-  possibleMoves += r1u2List;
+  constantShiftGenerator(r1u2, 15, &possibleMoves);
 
   //Left two down one
   U64 l2d1 = ((kBoard & ~(File_A | File_B | Rank_1)) >> 6) & ~FriendlyPieces;
-  linkedMoveList l2d1List = generateMovesFromBitboard(l2d1);
-  i = l2d1List.head;
-  while(i != NULL) {
-    i->data.start = i->data.end - 6;
-    i = i->next;
-  }
-  possibleMoves += l2d1List;
+  constantShiftGenerator(l2d1, -6, &possibleMoves);
 
   //Right two down one
   U64 r2d1 = ((kBoard & ~(File_G | File_H | Rank_1)) >> 10) & ~FriendlyPieces;
-  linkedMoveList r2d1List = generateMovesFromBitboard(r2d1);
-  i = l2d1List.head;
-  while(i != NULL) {
-    i->data.start = i->data.end - 10;
-    i = i->next;
-  }
-  possibleMoves += l2d1List;
+  constantShiftGenerator(r2d1, -10, &possibleMoves);
 
   //Left one down two
   U64 l1d2 = ((kBoard & ~(File_A | Rank_1 | Rank_2)) >> 15) & ~FriendlyPieces;
-  linkedMoveList l1d2List = generateMovesFromBitboard(l1d2);
-  i = l1d2List.head;
-  while(i != NULL) {
-    i->data.start = i->data.end - 15;
-    i = i->next;
-  }
-  possibleMoves += l1d2List;
+  constantShiftGenerator(l1d2, -15, &possibleMoves);
 
   //Right one down two
   U64 r1d2 = ((kBoard & ~(File_H | Rank_1 | Rank_2)) >> 17) & ~FriendlyPieces;
-  linkedMoveList r1d2List = generateMovesFromBitboard(r1d2);
-  i = r1d2List.head;
-  while(i != NULL) {
-    i->data.start = i->data.end - 17;
-    i = i->next;
-  }
-  possibleMoves += r1d2List;
+  constantShiftGenerator(r1d2, -17, &possibleMoves);
 
   return possibleMoves;
 }
