@@ -157,22 +157,22 @@ void constantShiftGenerator(U64 board, int shift, int special, &moveList possibl
   possibleMoves += moves;
 }
 
-moveList possibleMovesWPawns(linkedMoveList history, const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game, const extraBitboardsInfo info) {
   moveList possibleMoves;
   // Move forward one
   U64 fw1 = ( (game.WP & ~Rank_7) << 8 ) & ~(info.BlackPieces | info.WhitePieces);
-  constantShiftGenerator(fw1, 8, &possibleMoves);
+  constantShiftGenerator(fw1, 8, possibleMoves);
 
   // Move forward two
   U64 fw2 = ((game.WP & Rank_2) << 16) & ~(info.BlackPieces | info.WhitePieces) & ~((info.BlackPieces | info.WhitePieces) << 8);
-  constantShiftGenerator(fw2, 16, &possibleMoves);
+  constantShiftGenerator(fw2, 16, possibleMoves);
 
   // Attack
   U64 atL = ((game.WP & ~File_A) << 9) & info.BlackPieces;
-  constantShiftGenerator(atL, 9, &possibleMoves);
+  constantShiftGenerator(atL, 9, possibleMoves);
 
   U64 atR = ((game.WP & ~File_H) << 7) & info.BlackPieces;
-  constantShiftGenerator(atR, 7, &possibleMoves);
+  constantShiftGenerator(atR, 7, possibleMoves);
 
   // Promotion
   U64 pr = ((game.WP & Rank_7) << 8) & ~(info.BlackPieces | info.WhitePieces);
@@ -235,38 +235,22 @@ moveList possibleMovesWPawns(linkedMoveList history, const bitboards game, const
   return possibleMoves;
 }
 
-moveList possibleMovesBPawns(moveList history, const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBPawns(linkedMoveList history, const bitboards game, const extraBitboardsInfo info) {
   moveList possibleMoves;
   // Move forward one
   U64 fw1 = ( (game.BP & ~Rank_2) >> 8 ) & ~(info.BlackPieces | info.WhitePieces);
-  moveList fw1List = generateMovesFromBitboard(fw1);
-  for(int i = 0; i < fw1List.length; i++) {
-    fw1List.moves[i].start = fw1List.moves[i].end - 8;
-  }
-  possibleMoves.addMoveList(fw1List);
+  constantShiftGenerator(fw1, -8, &possibleMoves);
 
   // Move forward two
   U64 fw2 = ((game.BP & Rank_7) >> 16) & ~(info.BlackPieces | info.WhitePieces) & ~((info.BlackPieces | info.WhitePieces) >> 8);
-  moveList fw2List = generateMovesFromBitboard(fw2);
-  for(int i = 0; i < fw2List.length; i++) {
-    fw2List.moves[i].start = fw2List.moves[i].end - 16;
-  }
-  possibleMoves.addMoveList(fw2List);
+  constantShiftGenerator(fw2, -16, &possibleMoves);
 
   // Attack
   U64 atL = ((game.BP & ~File_H) >> 9) & info.WhitePieces;
-  moveList atLList = generateMovesFromBitboard(atL);
-  for(int i = 0; i < atLList.length; i++) {
-    atLList.moves[i].start = atLList.moves[i].end - 9;
-  }
-  possibleMoves.addMoveList(atLList);
+  constantShiftGenerator(atL, -9, &possibleMoves);
 
   U64 atR = ((game.BP & ~File_A) >> 7) & info.WhitePieces;
-  moveList atRList = generateMovesFromBitboard(atR);
-  for(int i = 0; i < atRList.length; i++) {
-    atRList.moves[i].start = atRList.moves[i].end - 7;
-  }
-  possibleMoves.addMoveList(atRList);
+  constantShiftGenerator(atR, -7, &possibleMoves);
 
   // Promotion
   U64 pr = ((game.BP & Rank_2) >> 8) & ~(info.BlackPieces | info.WhitePieces);
