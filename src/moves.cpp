@@ -136,7 +136,7 @@ linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
   return moves;
 }
 
-void constantShiftGenerator(U64 board, int shift, &moveList possibleMoves) {
+void constantShiftGenerator(U64 board, int shift, linkedMoveList& possibleMoves) {
   linkedMoveList moves = generateMovesFromBitboard(board);
   moveNode* i = moves.head;
   while(i != NULL) {
@@ -146,7 +146,7 @@ void constantShiftGenerator(U64 board, int shift, &moveList possibleMoves) {
   possibleMoves += moves;
 }
 
-void constantShiftGenerator(U64 board, int shift, int special, &moveList possibleMoves) {
+void constantShiftGenerator(U64 board, int shift, int special, linkedMoveList& possibleMoves) {
   linkedMoveList moves = generateMovesFromBitboard(board);
   moveNode* i = moves.head;
   while(i != NULL) {
@@ -236,21 +236,21 @@ linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game,
 }
 
 linkedMoveList possibleMovesBPawns(linkedMoveList history, const bitboards game, const extraBitboardsInfo info) {
-  moveList possibleMoves;
+  linkedMoveList possibleMoves;
   // Move forward one
   U64 fw1 = ( (game.BP & ~Rank_2) >> 8 ) & ~(info.BlackPieces | info.WhitePieces);
-  constantShiftGenerator(fw1, -8, &possibleMoves);
+  constantShiftGenerator(fw1, -8, possibleMoves);
 
   // Move forward two
   U64 fw2 = ((game.BP & Rank_7) >> 16) & ~(info.BlackPieces | info.WhitePieces) & ~((info.BlackPieces | info.WhitePieces) >> 8);
-  constantShiftGenerator(fw2, -16, &possibleMoves);
+  constantShiftGenerator(fw2, -16, possibleMoves);
 
   // Attack
   U64 atL = ((game.BP & ~File_H) >> 9) & info.WhitePieces;
-  constantShiftGenerator(atL, -9, &possibleMoves);
+  constantShiftGenerator(atL, -9, possibleMoves);
 
   U64 atR = ((game.BP & ~File_A) >> 7) & info.WhitePieces;
-  constantShiftGenerator(atR, -7, &possibleMoves);
+  constantShiftGenerator(atR, -7, possibleMoves);
 
   // Promotion
   U64 pr = ((game.BP & Rank_2) >> 8) & ~(info.BlackPieces | info.WhitePieces);
@@ -302,114 +302,82 @@ linkedMoveList possibleMovesKnights(const U64 kBoard, const U64 FriendlyPieces) 
 
   //Left two up one
   U64 l2u1 = ((kBoard & ~(File_A | File_B | Rank_8)) << 10) & ~FriendlyPieces; // Posible trival optimization by precomupting const bitboard combinations
-  constantShiftGenerator(l2u1, 10, &possibleMoves);
+  constantShiftGenerator(l2u1, 10, possibleMoves);
 
   //Right two up one
   U64 r2u1 = ((kBoard & ~(File_G | File_H | Rank_8)) << 6) & ~FriendlyPieces;
-  constantShiftGenerator(r2u1, 6, &possibleMoves);
+  constantShiftGenerator(r2u1, 6, possibleMoves);
 
   //Left one up two
   U64 l1u2 = ((kBoard & ~(File_A | Rank_7 | Rank_8)) << 17) & ~FriendlyPieces;
-  constantShiftGenerator(l1u2, 17, &possibleMoves);
+  constantShiftGenerator(l1u2, 17, possibleMoves);
 
   //Right one up two
   U64 r1u2 = ((kBoard & ~(File_H | Rank_7 | Rank_8)) << 15) & ~FriendlyPieces;
-  constantShiftGenerator(r1u2, 15, &possibleMoves);
+  constantShiftGenerator(r1u2, 15, possibleMoves);
 
   //Left two down one
   U64 l2d1 = ((kBoard & ~(File_A | File_B | Rank_1)) >> 6) & ~FriendlyPieces;
-  constantShiftGenerator(l2d1, -6, &possibleMoves);
+  constantShiftGenerator(l2d1, -6, possibleMoves);
 
   //Right two down one
   U64 r2d1 = ((kBoard & ~(File_G | File_H | Rank_1)) >> 10) & ~FriendlyPieces;
-  constantShiftGenerator(r2d1, -10, &possibleMoves);
+  constantShiftGenerator(r2d1, -10, possibleMoves);
 
   //Left one down two
   U64 l1d2 = ((kBoard & ~(File_A | Rank_1 | Rank_2)) >> 15) & ~FriendlyPieces;
-  constantShiftGenerator(l1d2, -15, &possibleMoves);
+  constantShiftGenerator(l1d2, -15, possibleMoves);
 
   //Right one down two
   U64 r1d2 = ((kBoard & ~(File_H | Rank_1 | Rank_2)) >> 17) & ~FriendlyPieces;
-  constantShiftGenerator(r1d2, -17, &possibleMoves);
+  constantShiftGenerator(r1d2, -17, possibleMoves);
 
   return possibleMoves;
 }
 
-moveList possibleMovesWKnights(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWKnights(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesKnights(game.WN, info.WhitePieces);
 }
 
-moveList possibleMovesBKnights(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBKnights(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesKnights(game.BN, info.BlackPieces);
 }
 
-moveList possibleMovesKings(const U64 kBoard, const U64 FriendlyPieces) {
-  moveList possibleMoves;
+linkedMoveList possibleMovesKings(const U64 kBoard, const U64 FriendlyPieces) {
+  linkedMoveList possibleMoves;
 
   U64 u = ((kBoard & ~(File_H)) << 8) & ~FriendlyPieces;
-  moveList uList = generateMovesFromBitboard(u);
-  for(int i = 0; i < uList.length; i++) {
-    uList.moves[i].start = uList.moves[i].end + 8;
-  }
-  possibleMoves.addMoveList(uList);
+  constantShiftGenerator(u, 8, possibleMoves);
 
   U64 ur = ((kBoard & ~(File_H | Rank_8)) << 7) & ~FriendlyPieces;
-  moveList urList = generateMovesFromBitboard(ur);
-  for(int i = 0; i < urList.length; i++) {
-    urList.moves[i].start = urList.moves[i].end + 7;
-  }
-  possibleMoves.addMoveList(urList);
+  constantShiftGenerator(ur, 7, possibleMoves);
 
   U64 ul = ((kBoard & ~(File_H | Rank_1)) << 9) & ~FriendlyPieces;
-  moveList ulList = generateMovesFromBitboard(ul);
-  for(int i = 0; i < ulList.length; i++) {
-    ulList.moves[i].start = ulList.moves[i].end + 9;
-  }
-  possibleMoves.addMoveList(ulList);
+  constantShiftGenerator(ul, 9, possibleMoves);
 
   U64 l = ((kBoard & ~(Rank_1)) << 1) & ~FriendlyPieces;
-  moveList lList = generateMovesFromBitboard(l);
-  for(int i = 0; i < lList.length; i++) {
-    lList.moves[i].start = lList.moves[i].end + 1;
-  }
-  possibleMoves.addMoveList(lList);
+  constantShiftGenerator(l, 1, possibleMoves);
 
   U64 r = ((kBoard & ~(File_H | Rank_1)) >> 1) & ~FriendlyPieces;
-  moveList rList = generateMovesFromBitboard(r);
-  for(int i = 0; i < rList.length; i++) {
-    rList.moves[i].start = rList.moves[i].end - 1;
-  }
-  possibleMoves.addMoveList(rList);
+  constantShiftGenerator(r, -1, possibleMoves);
 
   U64 d = ((kBoard & ~(File_A)) >> 8) & ~FriendlyPieces;
-  moveList dList = generateMovesFromBitboard(d);
-  for(int i = 0; i < dList.length; i++) {
-    dList.moves[i].start = dList.moves[i].end - 8;
-  }
-  possibleMoves.addMoveList(dList);
+  constantShiftGenerator(d, -8, possibleMoves);
 
   U64 dr = ((kBoard & ~(File_A | Rank_8)) >> 9) & ~FriendlyPieces;
-  moveList drList = generateMovesFromBitboard(dr);
-  for(int i = 0; i < drList.length; i++) {
-    drList.moves[i].start = drList.moves[i].end - 9;
-  }
-  possibleMoves.addMoveList(drList);
+  constantShiftGenerator(dr, -9, possibleMoves);
 
   U64 dl = ((kBoard & ~(File_H | Rank_1)) >> 7) & ~FriendlyPieces;
-  moveList dlList = generateMovesFromBitboard(dl);
-  for(int i = 0; i < dlList.length; i++) {
-    dlList.moves[i].start = dlList.moves[i].end - 7;
-  }
-  possibleMoves.addMoveList(dlList);
+  constantShiftGenerator(dl, -7, possibleMoves);
 
   return possibleMoves;
 }
 
-moveList possibleMovesWKings(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWKings(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesKings(game.WK, info.WhitePieces);
 }
 
-moveList possibleMovesBKings(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBKings(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesKings(game.BK, info.BlackPieces);
 }
 
