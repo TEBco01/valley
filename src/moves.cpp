@@ -389,6 +389,7 @@ bool pieceAtSquare(const U64 board, const int square) {
   }
 }
 
+// TODO: Optimization possible. Reduction from ints? Mask consolidation?
 moveList rayAttack(const int origin, const int modifier, const U64 NoNoZone, const U64 enemies, const U64 friendlies) {
   moveList possibleMoves;
   int cursor = origin;
@@ -458,28 +459,31 @@ moveList possibleMovesBBishops(const bitboards game, const extraBitboardsInfo in
 }
 
 moveList possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
-  moveList possibleMoves;
-  moveList positions = generateMovesFromBitboard(qBoard);
+  linkedMoveList possibleMoves;
+  linkedMoveList positions = generateMovesFromBitboard(qBoard);
 
-  for(int i = 0; i < positions.length; i++) {
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -8, Rank_8, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 8, Rank_1, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -1, File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 1, File_H, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -9, Rank_8 | File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -7, Rank_8 | File_H, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 7, Rank_1 | File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 9, Rank_1 | File_H, EnemyPieces, FriendlyPieces));
+  moveNode* i = positions.head;
+  while(i != NULL) {
+    possibleMoves += rayAttack((int)i->data.end, -8, Rank_8, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 8, Rank_1, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, -1, File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 1, File_H, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, -9, Rank_8 | File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, -7, Rank_8 | File_H, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 7, Rank_1 | File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 9, Rank_1 | File_H, EnemyPieces, FriendlyPieces);
+    i = i->next;
   }
 
+  position.deleteList();
   return possibleMoves;
 }
 
-moveList possibleMovesWQueens(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWQueens(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesQueens(game.WQ, info.WhitePieces, info.BlackPieces);
 }
 
-moveList possibleMovesBQueens(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBQueens(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesQueens(game.BQ, info.BlackPieces, info.WhitePieces);
 }
 
