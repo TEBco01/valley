@@ -63,7 +63,7 @@ void linkedMoveList::add(move value){
 	}
 };
 
-void linkedMoveList::create(byte start, byte end, byte special = 0){
+void linkedMoveList::create(byte start, byte end, byte special){
 	move newMove;
 	newMove.start = start;
 	newMove.end = end;
@@ -158,7 +158,7 @@ void constantShiftGenerator(U64 board, int shift, int special, linkedMoveList& p
 }
 
 linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game, const extraBitboardsInfo info) {
-  moveList possibleMoves;
+  linkedMoveList possibleMoves;
   // Move forward one
   U64 fw1 = ( (game.WP & ~Rank_7) << 8 ) & ~(info.BlackPieces | info.WhitePieces);
   constantShiftGenerator(fw1, 8, possibleMoves);
@@ -183,7 +183,7 @@ linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game,
     i->data.start = i->data.end + 8;
     i->data.special = 2;
     for(byte j = 3; j <= 5; j++) {
-      prExtraList.create(i->start, i->end, j);
+      prExtraList.create(i->data.start, i->data.end, j);
     }
     i = i->next;
   }
@@ -196,10 +196,10 @@ linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game,
   U64 epL = ep & ((game.WP & ~File_A) << 9);
   linkedMoveList epLList = generateMovesFromBitboard(epL);
 
-  moveNode* i = epLList.head;
+  i = epLList.head;
   moveNode* previous = NULL;
   while(i != NULL) {
-    if(!(history.tail->data.end == i->data.end + 8)) {
+    if(!(history.tail->data.end == i->data.end + 8)) { // Checks to see if enemy pawn moved last
       previous->next = i->next;
       delete i;
       i = previous;
@@ -215,8 +215,8 @@ linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game,
 
   U64 epR = ep & ((game.WP & ~File_H) << 7);
   linkedMoveList epRList = generateMovesFromBitboard(epR);
-  moveNode* i = epRList.head;
-  moveNode* previous = NULL;
+  i = epRList.head;
+  previous = NULL;
   while(i != NULL) {
     if(!(history.tail->data.end == i->data.end + 8)) {
       previous->next = i->next;
@@ -261,7 +261,7 @@ linkedMoveList possibleMovesBPawns(linkedMoveList history, const bitboards game,
     i->data.start = i->data.end - 8;
     i->data.special = 2;
     for(byte j = 3; j <= 5; j++) {
-      prExtraList.create(i->start, i->end, j);
+      prExtraList.create(i->data.start, i->data.end, j);
     }
     i = i->next;
   }
@@ -274,10 +274,10 @@ linkedMoveList possibleMovesBPawns(linkedMoveList history, const bitboards game,
   U64 epL = ep & ((game.BP & ~File_H) >> 9);
   linkedMoveList epLList = generateMovesFromBitboard(epL);
 
-  moveNode* i = epLList.head;
+  i = epLList.head;
   moveNode* previous = NULL;
   while(i != NULL) {
-    if(!(history.tail->data.end == i->data.end - 8)) {
+    if(!(history.tail->data.end == i->data.end - 8)) { // Checks to see if enemy pawn moved last
       previous->next = i->next;
       delete i;
       i = previous;
@@ -293,8 +293,8 @@ linkedMoveList possibleMovesBPawns(linkedMoveList history, const bitboards game,
 
   U64 epR = ep & ((game.BP & ~File_A) << 7);
   linkedMoveList epRList = generateMovesFromBitboard(epR);
-  moveNode* i = epRList.head;
-  moveNode* previous = NULL;
+  i = epRList.head;
+  previous = NULL;
   while(i != NULL) {
     if(!(history.tail->data.end == i->data.end - 8)) {
       previous->next = i->next;
