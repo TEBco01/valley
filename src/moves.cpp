@@ -414,25 +414,28 @@ moveList rayAttack(const int origin, const int modifier, const U64 NoNoZone, con
   return possibleMoves;
 }
 
-moveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
-  moveList possibleMoves;
-  moveList positions = generateMovesFromBitboard(rBoard);
+linkedMoveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
+  linkedMoveList possibleMoves;
+  linkedMoveList positions = generateMovesFromBitboard(rBoard);
 
-  for(int i = 0; i < positions.length; i++) {
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -8, Rank_8, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 8, Rank_1, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -1, File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 1, File_H, EnemyPieces, FriendlyPieces));
+  moveNode* i = positions.head;
+  while(i != NULL) {
+    possibleMoves += rayAttack((int)i->data.end, -8, Rank_8, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 8, Rank_1, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, -1, File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 1, File_H, EnemyPieces, FriendlyPieces);
+    i = i->next;
   }
 
+  position.deleteList();
   return possibleMoves;
 }
 
-moveList possibleMovesWRooks(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWRooks(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesRooks(game.WR, info.WhitePieces, info.BlackPieces);
 }
 
-moveList possibleMovesBRooks(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBRooks(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesRooks(game.BR, info.BlackPieces, info.WhitePieces);
 }
 
