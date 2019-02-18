@@ -436,29 +436,32 @@ moveList possibleMovesBRooks(const bitboards game, const extraBitboardsInfo info
   return possibleMovesRooks(game.BR, info.BlackPieces, info.WhitePieces);
 }
 
-moveList possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
-  moveList possibleMoves;
-  moveList positions = generateMovesFromBitboard(rBoard);
+linkedMoveList possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
+  linkedMoveList possibleMoves;
+  linkedMoveList positions = generateMovesFromBitboard(rBoard);
 
-  for(int i = 0; i < positions.length; i++) {
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -9, Rank_8 | File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -7, Rank_8 | File_H, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 7, Rank_1 | File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 9, Rank_1 | File_H, EnemyPieces, FriendlyPieces));
+  moveNode* i = positions.head;
+  while(i != NULL) {
+    possibleMoves += rayAttack((int)i->data.end, -9, Rank_8 | File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, -7, Rank_8 | File_H, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 7, Rank_1 | File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 9, Rank_1 | File_H, EnemyPieces, FriendlyPieces);
+    i = i->next;
   }
 
+  position.deleteList();
   return possibleMoves;
 }
 
-moveList possibleMovesWBishops(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWBishops(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesBishops(game.WB, info.WhitePieces, info.BlackPieces);
 }
 
-moveList possibleMovesBBishops(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBBishops(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesBishops(game.BB, info.BlackPieces, info.WhitePieces);
 }
 
-moveList possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
+linkedMoveList possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
   linkedMoveList possibleMoves;
   linkedMoveList positions = generateMovesFromBitboard(qBoard);
 
