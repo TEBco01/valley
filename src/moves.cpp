@@ -484,56 +484,34 @@ moveList possibleMovesBQueens(const bitboards game, const extraBitboardsInfo inf
 }
 
 // Only guaranteed for standard chess
-moveList possibleMovesW(moveList history, const bitboards game) {
-  moveList possibleMoves;
+linkedMoveList possibleMovesW(moveList history, const bitboards game) {
+  linkedMoveList possibleMoves;
 
   extraBitboardsInfo info;
   info.updateFromBitboards(game);
 
-  moveList pawnMoves = possibleMovesWPawns(history, game, info);
-  possibleMoves.addMoveList(pawnMoves);
-
-  moveList knightMoves = possibleMovesWKnights(game, info);
-  possibleMoves.addMoveList(knightMoves);
-
-  moveList kingMoves = possibleMovesWKings(game, info);
-  possibleMoves.addMoveList(kingMoves);
-
-  moveList rookMoves = possibleMovesWRooks(game, info);
-  possibleMoves.addMoveList(rookMoves);
-
-  moveList bishopMoves = possibleMovesWBishops(game, info);
-  possibleMoves.addMoveList(bishopMoves);
-
-  moveList queenMoves = possibleMovesWQueens(game, info);
-  possibleMoves.addMoveList(queenMoves);
+  possibleMoves += possibleMovesWPawns(history, game, info);
+  possibleMoves += possibleMovesWKnights(game, info);
+  possibleMoves += possibleMovesWKings(game, info);
+  possibleMoves += possibleMovesWRooks(game, info);
+  possibleMoves += possibleMovesWBishops(game, info);
+  possibleMoves += possibleMovesWQueens(game, info);
 
   return possibleMoves;
 }
 
-moveList possibleMovesB(moveList history, const bitboards game) {
-  moveList possibleMoves;
+linkedMoveList possibleMovesB(moveList history, const bitboards game) {
+  linkedMoveList possibleMoves;
 
   extraBitboardsInfo info;
   info.updateFromBitboards(game);
 
-  moveList pawnMoves = possibleMovesBPawns(history, game, info);
-  possibleMoves.addMoveList(pawnMoves);
-
-  moveList knightMoves = possibleMovesBKnights(game, info);
-  possibleMoves.addMoveList(knightMoves);
-
-  moveList kingMoves = possibleMovesBKings(game, info);
-  possibleMoves.addMoveList(kingMoves);
-
-  moveList rookMoves = possibleMovesBRooks(game, info);
-  possibleMoves.addMoveList(rookMoves);
-
-  moveList bishopMoves = possibleMovesBBishops(game, info);
-  possibleMoves.addMoveList(bishopMoves);
-
-  moveList queenMoves = possibleMovesBQueens(game, info);
-  possibleMoves.addMoveList(queenMoves);
+  possibleMoves += possibleMovesBPawns(history, game, info);
+  possibleMoves += possibleMovesBKnights(game, info);
+  possibleMoves += possibleMovesBKings(game, info);
+  possibleMoves += possibleMovesBRooks(game, info);
+  possibleMoves += possibleMovesBBishops(game, info);
+  possibleMoves += possibleMovesBQueens(game, info);
 
   return possibleMoves;
 }
