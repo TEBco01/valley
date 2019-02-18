@@ -427,7 +427,7 @@ linkedMoveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, co
     i = i->next;
   }
 
-  position.deleteList();
+  positions.deleteList();
   return possibleMoves;
 }
 
@@ -452,7 +452,7 @@ linkedMoveList possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, 
     i = i->next;
   }
 
-  position.deleteList();
+  positions.deleteList();
   return possibleMoves;
 }
 
@@ -481,7 +481,7 @@ linkedMoveList possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, c
     i = i->next;
   }
 
-  position.deleteList();
+  positions.deleteList();
   return possibleMoves;
 }
 
@@ -494,7 +494,7 @@ linkedMoveList possibleMovesBQueens(const bitboards game, const extraBitboardsIn
 }
 
 // Only guaranteed for standard chess
-linkedMoveList possibleMovesW(moveList history, const bitboards game) {
+linkedMoveList possibleMovesW(linkedMoveList history, const bitboards game) {
   linkedMoveList possibleMoves;
 
   extraBitboardsInfo info;
@@ -510,7 +510,7 @@ linkedMoveList possibleMovesW(moveList history, const bitboards game) {
   return possibleMoves;
 }
 
-linkedMoveList possibleMovesB(moveList history, const bitboards game) {
+linkedMoveList possibleMovesB(linkedMoveList history, const bitboards game) {
   linkedMoveList possibleMoves;
 
   extraBitboardsInfo info;
