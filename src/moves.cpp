@@ -194,7 +194,7 @@ linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game,
   U64 ep = (game.BP & Rank_5) << 8;
 
   U64 epL = ep & ((game.WP & ~File_A) << 9);
-  moveList epLList = generateMovesFromBitboard(epL);
+  linkedMoveList epLList = generateMovesFromBitboard(epL);
 
   moveNode* i = epLList.head;
   moveNode* previous = NULL;
@@ -254,45 +254,61 @@ linkedMoveList possibleMovesBPawns(linkedMoveList history, const bitboards game,
 
   // Promotion
   U64 pr = ((game.BP & Rank_2) >> 8) & ~(info.BlackPieces | info.WhitePieces);
-  moveList prList = generateMovesFromBitboard(pr);
-  int originalLength = prList.length;
-  for(int i = 0; i < originalLength; i++) {
-    byte end = prList.moves[i].end;
-    byte start = end - 8;
-    prList.moves[i].start = start;
-    prList.moves[i].special = 2;
+  linkedMoveList prList = generateMovesFromBitboard(pr);
+  linkedMoveList prExtraList;
+  moveNode* i = prList.head;
+  while(i != NULL) {
+    i->data.start = i->data.end - 8;
+    i->data.special = 2;
     for(byte j = 3; j <= 5; j++) {
-      prList.createMove(start, end, j);
+      prExtraList.create(i->start, i->end, j);
     }
+    i = i->next;
   }
-  possibleMoves.addMoveList(prList);
+  possibleMoves += prList;
+  possibleMoves += prExtraList;
 
   // En passant
   U64 ep = (game.BP & Rank_4) >> 8;
 
   U64 epL = ep & ((game.BP & ~File_H) >> 9);
-  moveList epLList = generateMovesFromBitboard(epL);
-  for(int i = 0; i < epLList.length; i++) {
-    epLList.moves[i].start = epLList.moves[i].end - 9;
-    epLList.moves[i].special = 10;
-    if(!(history.moves[history.length-1].end == epLList.moves[i].end - 8)) { // Checks to see if the enemy pawn moved last
-      epLList.removeMove(i);
-      i--;
+  linkedMoveList epLList = generateMovesFromBitboard(epL);
+
+  moveNode* i = epLList.head;
+  moveNode* previous = NULL;
+  while(i != NULL) {
+    if(!(history.tail->data.end == i->data.end - 8)) {
+      previous->next = i->next;
+      delete i;
+      i = previous;
     }
+    else {
+      i->data.start = i->data.end - 9;
+      i->data.special = 10;
+    }
+    previous = i;
+    i = i->next;
   }
-  possibleMoves.addMoveList(epLList);
+  possibleMoves += epLList;
 
   U64 epR = ep & ((game.BP & ~File_A) << 7);
-  moveList epRList = generateMovesFromBitboard(epR);
-  for(int i = 0; i < epRList.length; i++) {
-    epRList.moves[i].start = epRList.moves[i].end - 7;
-    epRList.moves[i].special = 10;
-    if(!(history.moves[history.length-1].end == epRList.moves[i].end - 8)) { // Checks to see if the enemy pawn moved last
-      epRList.removeMove(i);
-      i--;
+  linkedMoveList epRList = generateMovesFromBitboard(epR);
+  moveNode* i = epRList.head;
+  moveNode* previous = NULL;
+  while(i != NULL) {
+    if(!(history.tail->data.end == i->data.end - 8)) {
+      previous->next = i->next;
+      delete i;
+      i = previous;
     }
+    else {
+      i->data.start = i->data.end -7;
+      i->data.special = 10;
+    }
+    previous = i;
+    i = i->next;
   }
-  possibleMoves.addMoveList(epRList);
+  possibleMoves += epRList;
 
   return possibleMoves;
 }
