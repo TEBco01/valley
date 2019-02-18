@@ -390,8 +390,8 @@ bool pieceAtSquare(const U64 board, const int square) {
 }
 
 // TODO: Optimization possible. Reduction from ints? Mask consolidation?
-moveList rayAttack(const int origin, const int modifier, const U64 NoNoZone, const U64 enemies, const U64 friendlies) {
-  moveList possibleMoves;
+linkedMoveList rayAttack(const int origin, const int modifier, const U64 NoNoZone, const U64 enemies, const U64 friendlies) {
+  linkedMoveList possibleMoves;
   int cursor = origin;
 
   while (true) {
@@ -405,10 +405,10 @@ moveList rayAttack(const int origin, const int modifier, const U64 NoNoZone, con
       break;
     }
     if(pieceAtSquare(enemies, cursor)) {
-      possibleMoves.createMove(origin, cursor);
+      possibleMoves.create(origin, cursor);
       break;
     }
-    possibleMoves.createMove(origin, cursor);
+    possibleMoves.create(origin, cursor);
   }
 
   return possibleMoves;
