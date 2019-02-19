@@ -113,17 +113,23 @@ void linkedMoveList::deleteList(){
   tail = NULL;
 };
 
-linkedMoveList linkedMoveList::operator+(linkedMoveList b){
+/*linkedMoveList linkedMoveList::operator+(linkedMoveList b){
 	linkedMoveList a;
 	a.head = this->head;
 	a.tail = this->tail;
-	a.tail->next = b.head;
+	a.tail->next = b.head; // Broken in mysterious ways
 	a.tail = b.tail;
 	return a;
-};
+};*/
 
 void linkedMoveList::operator+=(linkedMoveList b){
-	 *this = *this + b;
+  if(this->head == NULL) {
+    *this = b;
+  } else {
+    this->tail->next = b.head;
+    if(b.head != NULL)
+      this->tail = b.tail;
+  }
 };
 
 linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
