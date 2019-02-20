@@ -63,7 +63,7 @@ void linkedMoveList::add(move value){
 	}
 };
 
-void linkedMoveList::create(byte start, byte end, byte special = 0){
+void linkedMoveList::create(byte start, byte end, byte special){
 	move newMove;
 	newMove.start = start;
 	newMove.end = end;
@@ -75,7 +75,7 @@ void linkedMoveList::remove(int pos){
 	moveNode *current = new moveNode;
 	moveNode *previous = new moveNode;
 	current = head;
-	for(int i = 1; i < pos; i++){
+	for(int i = 1; (i < pos) && (current->next != NULL); i++){ //added the second condition, not sure if it works or makes sense
 		previous = current;
 		current = current->next;
 	}
@@ -88,408 +88,318 @@ void linkedMoveList::operator=(linkedMoveList b){
 	this->tail = b.tail;
 };
 
-linkedMoveList::~linkedMoveList(){
-	while(head->next != NULL){
-		moveNode *temp = new moveNode;
-		temp = head;
-		head = head->next;
-		delete temp;
+/*linkedMoveList::~linkedMoveList(){
+  moveNode *cur;
+  moveNode *temp;
+  cur = head;
+	while(temp != NULL){
+    temp = cur->next;
+		delete cur;
+    cur = temp;
 	}
+};*/
+
+void linkedMoveList::deleteList(){
+  moveNode *cur;
+  moveNode *temp;
+  cur = head;
+	while(temp != NULL){
+    temp = cur->next;
+		delete cur;
+    cur = temp;
+	}
+
+  head = NULL;
+  tail = NULL;
 };
 
-linkedMoveList linkedMoveList::operator+(linkedMoveList b){
+/*linkedMoveList linkedMoveList::operator+(linkedMoveList b){
 	linkedMoveList a;
 	a.head = this->head;
 	a.tail = this->tail;
-	a.tail->next = b.head;
+	a.tail->next = b.head; // Broken in mysterious ways
 	a.tail = b.tail;
 	return a;
+};*/
+
+void linkedMoveList::operator+=(linkedMoveList b){
+  if(this->head == NULL) {
+    *this = b;
+  } else {
+    this->tail->next = b.head;
+    if(b.head != NULL)
+      this->tail = b.tail;
+  }
 };
 
-moveList possibleMovesArrayWPawns(moveList history, char game[64]) {
-  moveList possibleMoves;
-  for (int i=8; i < 56; i++) {
-    if(game[i] == 'P') {
-
-      if(i > 15) { // Not in range of end of board
-        if(game[i - 8] == ' ') { // Is the space in front open
-          move newMove;
-          newMove.start = i;
-          newMove.end = i - 8;
-          possibleMoves.addMove(newMove);
-
-          if(i > 47) { // In starting row
-            if(game[i - 16] == ' ') { // and clear two spaces ahead
-              move newMove2;
-              newMove2.start = i;
-              newMove2.end = i - 16;
-              possibleMoves.addMove(newMove2);
-            }
-          }
-
-        }
-
-        if(i%8 != 0 && isLowercase(game[i - 9])) { // Diagonal left attack
-          move newMove;
-          newMove.start = i;
-          newMove.end = i - 9;
-          possibleMoves.addMove(newMove);
-        }
-        if(i%8 != 7 && isLowercase(game[i - 7])) { // Diagonal right attack
-          move newMove;
-          newMove.start = i;
-          newMove.end = i - 7;
-          possibleMoves.addMove(newMove);
-        }
-      }
-      else { // We are in range of end of board
-
-      }
-
-    }
-  }
-  return possibleMoves;
-}
-
-moveList possibleMovesArrayW(moveList history, char game[64]) {
-  moveList possibleMoves;
-  moveList pawnMoves = possibleMovesArrayWPawns(history, game);
-  for(int i = 0; i < pawnMoves.length; i++) {
-    possibleMoves.addMove(pawnMoves.moves[i]);
-  }
-  return possibleMoves;
-}
-
-/*std::string possibleMovesWPawns(std::string history, bitboards game, infoBoards info) {
-  // The array technique is very slow, and should be replaced eventually
-  // Update: Instead of converting, we're just going to always use an array
-  char array[64];
-  game.convertToStandardArray(array);
-  for (int i=0; i < 64; i++) {
-    if(array[i] == 'P') {
-
-    }
-  }
-
- return "";
-}
-
-std::string possibleMovesW(std::string history, bitboards game) {
-  infoBoards info;
-  return possibleMovesWPawns(history, game, info);
-}*/
-
-moveList generateMovesFromBitboard(const U64 toBoard) {
-  moveList moves;
+linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
+  linkedMoveList moves;
   for (int i=0; i < 64; i++) {
     if( toBoard & 1ULL << (63ULL - (U64)i) ) {
-      moves.createMove(0, i);
+      moves.create(0, i);
     }
   }
   return moves;
 }
 
-moveList possibleMovesWPawns(moveList history, const bitboards game, const extraBitboardsInfo info) {
-  moveList possibleMoves;
+void constantShiftGenerator(U64 board, int shift, linkedMoveList& possibleMoves) {
+  linkedMoveList moves = generateMovesFromBitboard(board);
+  moveNode* i = moves.head;
+  while(i != NULL) {
+    i->data.start = i->data.end + shift;
+    i = i->next;
+  }
+  possibleMoves += moves;
+}
+
+void constantShiftGenerator(U64 board, int shift, int special, linkedMoveList& possibleMoves) {
+  linkedMoveList moves = generateMovesFromBitboard(board);
+  moveNode* i = moves.head;
+  while(i != NULL) {
+    i->data.start = i->data.end + shift;
+    i->data.special = special;
+    i = i->next;
+  }
+  possibleMoves += moves;
+}
+
+linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game, const extraBitboardsInfo info) {
+  linkedMoveList possibleMoves;
   // Move forward one
   U64 fw1 = ( (game.WP & ~Rank_7) << 8 ) & ~(info.BlackPieces | info.WhitePieces);
-  moveList fw1List = generateMovesFromBitboard(fw1);
-  for(int i = 0; i < fw1List.length; i++) {
-    fw1List.moves[i].start = fw1List.moves[i].end + 8;
-  }
-  possibleMoves.addMoveList(fw1List);
+  constantShiftGenerator(fw1, 8, possibleMoves);
 
   // Move forward two
   U64 fw2 = ((game.WP & Rank_2) << 16) & ~(info.BlackPieces | info.WhitePieces) & ~((info.BlackPieces | info.WhitePieces) << 8);
-  moveList fw2List = generateMovesFromBitboard(fw2);
-  for(int i = 0; i < fw2List.length; i++) {
-    fw2List.moves[i].start = fw2List.moves[i].end + 16;
-  }
-  possibleMoves.addMoveList(fw2List);
+  constantShiftGenerator(fw2, 16, possibleMoves);
 
   // Attack
   U64 atL = ((game.WP & ~File_A) << 9) & info.BlackPieces;
-  moveList atLList = generateMovesFromBitboard(atL);
-  for(int i = 0; i < atLList.length; i++) {
-    atLList.moves[i].start = atLList.moves[i].end + 9;
-  }
-  possibleMoves.addMoveList(atLList);
+  constantShiftGenerator(atL, 9, possibleMoves);
 
   U64 atR = ((game.WP & ~File_H) << 7) & info.BlackPieces;
-  moveList atRList = generateMovesFromBitboard(atR);
-  for(int i = 0; i < atRList.length; i++) {
-    atRList.moves[i].start = atRList.moves[i].end + 7;
-  }
-  possibleMoves.addMoveList(atRList);
+  constantShiftGenerator(atR, 7, possibleMoves);
 
   // Promotion
   U64 pr = ((game.WP & Rank_7) << 8) & ~(info.BlackPieces | info.WhitePieces);
-  moveList prList = generateMovesFromBitboard(pr);
-  int originalLength = prList.length;
-  for(int i = 0; i < originalLength; i++) {
-    byte end = prList.moves[i].end;
-    byte start = end + 8;
-    prList.moves[i].start = start;
-    prList.moves[i].special = 2;
+  linkedMoveList prList = generateMovesFromBitboard(pr);
+  linkedMoveList prExtraList;
+  moveNode* i = prList.head;
+  while(i != NULL) {
+    i->data.start = i->data.end + 8;
+    i->data.special = 2;
     for(byte j = 3; j <= 5; j++) {
-      prList.createMove(start, end, j);
+      prExtraList.create(i->data.start, i->data.end, j);
     }
+    i = i->next;
   }
-  possibleMoves.addMoveList(prList);
+  possibleMoves += prList;
+  possibleMoves += prExtraList;
 
   // En passant
   U64 ep = (game.BP & Rank_5) << 8;
 
   U64 epL = ep & ((game.WP & ~File_A) << 9);
-  moveList epLList = generateMovesFromBitboard(epL);
-  for(int i = 0; i < epLList.length; i++) {
-    epLList.moves[i].start = epLList.moves[i].end + 9;
-    epLList.moves[i].special = 10;
-    if(!(history.moves[history.length-1].end == epLList.moves[i].end + 8)) { // Checks to see if the enemy pawn moved last
-      epLList.removeMove(i);
-      i--;
+  linkedMoveList epLList = generateMovesFromBitboard(epL);
+
+  i = epLList.head;
+  moveNode* previous = NULL;
+  while(i != NULL) {
+    if(!(history.tail->data.end == i->data.end + 8)) { // Checks to see if enemy pawn moved last
+      previous->next = i->next;
+      delete i;
+      i = previous;
     }
+    else {
+      i->data.start = i->data.end + 9;
+      i->data.special = 10;
+    }
+    previous = i;
+    i = i->next;
   }
-  possibleMoves.addMoveList(epLList);
+  possibleMoves += epLList;
 
   U64 epR = ep & ((game.WP & ~File_H) << 7);
-  moveList epRList = generateMovesFromBitboard(epR);
-  for(int i = 0; i < epRList.length; i++) {
-    epRList.moves[i].start = epRList.moves[i].end + 7;
-    epRList.moves[i].special = 10;
-    if(!(history.moves[history.length-1].end == epRList.moves[i].end + 8)) { // Checks to see if the enemy pawn moved last
-      epRList.removeMove(i);
-      i--;
+  linkedMoveList epRList = generateMovesFromBitboard(epR);
+  i = epRList.head;
+  previous = NULL;
+  while(i != NULL) {
+    if(!(history.tail->data.end == i->data.end + 8)) {
+      previous->next = i->next;
+      delete i;
+      i = previous;
     }
+    else {
+      i->data.start = i->data.end + 9;
+      i->data.special = 10;
+    }
+    previous = i;
+    i = i->next;
   }
-  possibleMoves.addMoveList(epRList);
+  possibleMoves += epRList;
 
   return possibleMoves;
 }
 
-moveList possibleMovesBPawns(moveList history, const bitboards game, const extraBitboardsInfo info) {
-  moveList possibleMoves;
+linkedMoveList possibleMovesBPawns(linkedMoveList history, const bitboards game, const extraBitboardsInfo info) {
+  linkedMoveList possibleMoves;
   // Move forward one
   U64 fw1 = ( (game.BP & ~Rank_2) >> 8 ) & ~(info.BlackPieces | info.WhitePieces);
-  moveList fw1List = generateMovesFromBitboard(fw1);
-  for(int i = 0; i < fw1List.length; i++) {
-    fw1List.moves[i].start = fw1List.moves[i].end - 8;
-  }
-  possibleMoves.addMoveList(fw1List);
+  constantShiftGenerator(fw1, -8, possibleMoves);
 
   // Move forward two
   U64 fw2 = ((game.BP & Rank_7) >> 16) & ~(info.BlackPieces | info.WhitePieces) & ~((info.BlackPieces | info.WhitePieces) >> 8);
-  moveList fw2List = generateMovesFromBitboard(fw2);
-  for(int i = 0; i < fw2List.length; i++) {
-    fw2List.moves[i].start = fw2List.moves[i].end - 16;
-  }
-  possibleMoves.addMoveList(fw2List);
+  constantShiftGenerator(fw2, -16, possibleMoves);
 
   // Attack
   U64 atL = ((game.BP & ~File_H) >> 9) & info.WhitePieces;
-  moveList atLList = generateMovesFromBitboard(atL);
-  for(int i = 0; i < atLList.length; i++) {
-    atLList.moves[i].start = atLList.moves[i].end - 9;
-  }
-  possibleMoves.addMoveList(atLList);
+  constantShiftGenerator(atL, -9, possibleMoves);
 
   U64 atR = ((game.BP & ~File_A) >> 7) & info.WhitePieces;
-  moveList atRList = generateMovesFromBitboard(atR);
-  for(int i = 0; i < atRList.length; i++) {
-    atRList.moves[i].start = atRList.moves[i].end - 7;
-  }
-  possibleMoves.addMoveList(atRList);
+  constantShiftGenerator(atR, -7, possibleMoves);
 
   // Promotion
   U64 pr = ((game.BP & Rank_2) >> 8) & ~(info.BlackPieces | info.WhitePieces);
-  moveList prList = generateMovesFromBitboard(pr);
-  int originalLength = prList.length;
-  for(int i = 0; i < originalLength; i++) {
-    byte end = prList.moves[i].end;
-    byte start = end - 8;
-    prList.moves[i].start = start;
-    prList.moves[i].special = 2;
+  linkedMoveList prList = generateMovesFromBitboard(pr);
+  linkedMoveList prExtraList;
+  moveNode* i = prList.head;
+  while(i != NULL) {
+    i->data.start = i->data.end - 8;
+    i->data.special = 2;
     for(byte j = 3; j <= 5; j++) {
-      prList.createMove(start, end, j);
+      prExtraList.create(i->data.start, i->data.end, j);
     }
+    i = i->next;
   }
-  possibleMoves.addMoveList(prList);
+  possibleMoves += prList;
+  possibleMoves += prExtraList;
 
   // En passant
   U64 ep = (game.BP & Rank_4) >> 8;
 
   U64 epL = ep & ((game.BP & ~File_H) >> 9);
-  moveList epLList = generateMovesFromBitboard(epL);
-  for(int i = 0; i < epLList.length; i++) {
-    epLList.moves[i].start = epLList.moves[i].end - 9;
-    epLList.moves[i].special = 10;
-    if(!(history.moves[history.length-1].end == epLList.moves[i].end - 8)) { // Checks to see if the enemy pawn moved last
-      epLList.removeMove(i);
-      i--;
+  linkedMoveList epLList = generateMovesFromBitboard(epL);
+
+  i = epLList.head;
+  moveNode* previous = NULL;
+  while(i != NULL) {
+    if(!(history.tail->data.end == i->data.end - 8)) { // Checks to see if enemy pawn moved last
+      previous->next = i->next;
+      delete i;
+      i = previous;
     }
+    else {
+      i->data.start = i->data.end - 9;
+      i->data.special = 10;
+    }
+    previous = i;
+    i = i->next;
   }
-  possibleMoves.addMoveList(epLList);
+  possibleMoves += epLList;
 
   U64 epR = ep & ((game.BP & ~File_A) << 7);
-  moveList epRList = generateMovesFromBitboard(epR);
-  for(int i = 0; i < epRList.length; i++) {
-    epRList.moves[i].start = epRList.moves[i].end - 7;
-    epRList.moves[i].special = 10;
-    if(!(history.moves[history.length-1].end == epRList.moves[i].end - 8)) { // Checks to see if the enemy pawn moved last
-      epRList.removeMove(i);
-      i--;
+  linkedMoveList epRList = generateMovesFromBitboard(epR);
+  i = epRList.head;
+  previous = NULL;
+  while(i != NULL) {
+    if(!(history.tail->data.end == i->data.end - 8)) {
+      previous->next = i->next;
+      delete i;
+      i = previous;
     }
+    else {
+      i->data.start = i->data.end -7;
+      i->data.special = 10;
+    }
+    previous = i;
+    i = i->next;
   }
-  possibleMoves.addMoveList(epRList);
+  possibleMoves += epRList;
 
   return possibleMoves;
 }
 
-moveList possibleMovesKnights(const U64 kBoard, const U64 FriendlyPieces) {
-  moveList possibleMoves;
+linkedMoveList possibleMovesKnights(const U64 kBoard, const U64 FriendlyPieces) {
+  linkedMoveList possibleMoves;
 
   //Left two up one
   U64 l2u1 = ((kBoard & ~(File_A | File_B | Rank_8)) << 10) & ~FriendlyPieces; // Posible trival optimization by precomupting const bitboard combinations
-  moveList l2u1List = generateMovesFromBitboard(l2u1);
-  for(int i = 0; i < l2u1List.length; i++) {
-    l2u1List.moves[i].start = l2u1List.moves[i].end + 10;
-  }
-  possibleMoves.addMoveList(l2u1List);
+  constantShiftGenerator(l2u1, 10, possibleMoves);
 
   //Right two up one
   U64 r2u1 = ((kBoard & ~(File_G | File_H | Rank_8)) << 6) & ~FriendlyPieces;
-  moveList r2u1List = generateMovesFromBitboard(r2u1);
-  for(int i = 0; i < l2u1List.length; i++) {
-    r2u1List.moves[i].start = r2u1List.moves[i].end + 6;
-  }
-  possibleMoves.addMoveList(r2u1List);
+  constantShiftGenerator(r2u1, 6, possibleMoves);
 
   //Left one up two
   U64 l1u2 = ((kBoard & ~(File_A | Rank_7 | Rank_8)) << 17) & ~FriendlyPieces;
-  moveList l1u2List = generateMovesFromBitboard(l1u2);
-  for(int i = 0; i < l1u2List.length; i++) {
-    l1u2List.moves[i].start = l1u2List.moves[i].end + 17;
-  }
-  possibleMoves.addMoveList(l1u2List);
+  constantShiftGenerator(l1u2, 17, possibleMoves);
 
   //Right one up two
   U64 r1u2 = ((kBoard & ~(File_H | Rank_7 | Rank_8)) << 15) & ~FriendlyPieces;
-  moveList r1u2List = generateMovesFromBitboard(r1u2);
-  for(int i = 0; i < r1u2List.length; i++) {
-    r1u2List.moves[i].start = r1u2List.moves[i].end + 15;
-  }
-  possibleMoves.addMoveList(r1u2List);
+  constantShiftGenerator(r1u2, 15, possibleMoves);
 
   //Left two down one
   U64 l2d1 = ((kBoard & ~(File_A | File_B | Rank_1)) >> 6) & ~FriendlyPieces;
-  moveList l2d1List = generateMovesFromBitboard(l2d1);
-  for(int i = 0; i < l2d1List.length; i++) {
-    l2d1List.moves[i].start = l2d1List.moves[i].end - 6;
-  }
-  possibleMoves.addMoveList(l2d1List);
+  constantShiftGenerator(l2d1, -6, possibleMoves);
 
   //Right two down one
   U64 r2d1 = ((kBoard & ~(File_G | File_H | Rank_1)) >> 10) & ~FriendlyPieces;
-  moveList r2d1List = generateMovesFromBitboard(r2d1);
-  for(int i = 0; i < r2d1List.length; i++) {
-    r2d1List.moves[i].start = r2d1List.moves[i].end - 10;
-  }
-  possibleMoves.addMoveList(r2d1List);
+  constantShiftGenerator(r2d1, -10, possibleMoves);
 
   //Left one down two
   U64 l1d2 = ((kBoard & ~(File_A | Rank_1 | Rank_2)) >> 15) & ~FriendlyPieces;
-  moveList l1d2List = generateMovesFromBitboard(l1d2);
-  for(int i = 0; i < l1d2List.length; i++) {
-    l1d2List.moves[i].start = l1d2List.moves[i].end - 15;
-  }
-  possibleMoves.addMoveList(l1d2List);
+  constantShiftGenerator(l1d2, -15, possibleMoves);
 
   //Right one down two
   U64 r1d2 = ((kBoard & ~(File_H | Rank_1 | Rank_2)) >> 17) & ~FriendlyPieces;
-  moveList r1d2List = generateMovesFromBitboard(r1d2);
-  for(int i = 0; i < r1d2List.length; i++) {
-    r1d2List.moves[i].start = r1d2List.moves[i].end - 17;
-  }
-  possibleMoves.addMoveList(r1d2List);
+  constantShiftGenerator(r1d2, -17, possibleMoves);
 
   return possibleMoves;
 }
 
-moveList possibleMovesWKnights(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWKnights(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesKnights(game.WN, info.WhitePieces);
 }
 
-moveList possibleMovesBKnights(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBKnights(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesKnights(game.BN, info.BlackPieces);
 }
 
-moveList possibleMovesKings(const U64 kBoard, const U64 FriendlyPieces) {
-  moveList possibleMoves;
+linkedMoveList possibleMovesKings(const U64 kBoard, const U64 FriendlyPieces) {
+  linkedMoveList possibleMoves;
 
   U64 u = ((kBoard & ~(File_H)) << 8) & ~FriendlyPieces;
-  moveList uList = generateMovesFromBitboard(u);
-  for(int i = 0; i < uList.length; i++) {
-    uList.moves[i].start = uList.moves[i].end + 8;
-  }
-  possibleMoves.addMoveList(uList);
+  constantShiftGenerator(u, 8, possibleMoves);
 
   U64 ur = ((kBoard & ~(File_H | Rank_8)) << 7) & ~FriendlyPieces;
-  moveList urList = generateMovesFromBitboard(ur);
-  for(int i = 0; i < urList.length; i++) {
-    urList.moves[i].start = urList.moves[i].end + 7;
-  }
-  possibleMoves.addMoveList(urList);
+  constantShiftGenerator(ur, 7, possibleMoves);
 
   U64 ul = ((kBoard & ~(File_H | Rank_1)) << 9) & ~FriendlyPieces;
-  moveList ulList = generateMovesFromBitboard(ul);
-  for(int i = 0; i < ulList.length; i++) {
-    ulList.moves[i].start = ulList.moves[i].end + 9;
-  }
-  possibleMoves.addMoveList(ulList);
+  constantShiftGenerator(ul, 9, possibleMoves);
 
   U64 l = ((kBoard & ~(Rank_1)) << 1) & ~FriendlyPieces;
-  moveList lList = generateMovesFromBitboard(l);
-  for(int i = 0; i < lList.length; i++) {
-    lList.moves[i].start = lList.moves[i].end + 1;
-  }
-  possibleMoves.addMoveList(lList);
+  constantShiftGenerator(l, 1, possibleMoves);
 
   U64 r = ((kBoard & ~(File_H | Rank_1)) >> 1) & ~FriendlyPieces;
-  moveList rList = generateMovesFromBitboard(r);
-  for(int i = 0; i < rList.length; i++) {
-    rList.moves[i].start = rList.moves[i].end - 1;
-  }
-  possibleMoves.addMoveList(rList);
+  constantShiftGenerator(r, -1, possibleMoves);
 
   U64 d = ((kBoard & ~(File_A)) >> 8) & ~FriendlyPieces;
-  moveList dList = generateMovesFromBitboard(d);
-  for(int i = 0; i < dList.length; i++) {
-    dList.moves[i].start = dList.moves[i].end - 8;
-  }
-  possibleMoves.addMoveList(dList);
+  constantShiftGenerator(d, -8, possibleMoves);
 
   U64 dr = ((kBoard & ~(File_A | Rank_8)) >> 9) & ~FriendlyPieces;
-  moveList drList = generateMovesFromBitboard(dr);
-  for(int i = 0; i < drList.length; i++) {
-    drList.moves[i].start = drList.moves[i].end - 9;
-  }
-  possibleMoves.addMoveList(drList);
+  constantShiftGenerator(dr, -9, possibleMoves);
 
   U64 dl = ((kBoard & ~(File_H | Rank_1)) >> 7) & ~FriendlyPieces;
-  moveList dlList = generateMovesFromBitboard(dl);
-  for(int i = 0; i < dlList.length; i++) {
-    dlList.moves[i].start = dlList.moves[i].end - 7;
-  }
-  possibleMoves.addMoveList(dlList);
+  constantShiftGenerator(dl, -7, possibleMoves);
 
   return possibleMoves;
 }
 
-moveList possibleMovesWKings(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWKings(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesKings(game.WK, info.WhitePieces);
 }
 
-moveList possibleMovesBKings(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBKings(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesKings(game.BK, info.BlackPieces);
 }
 
@@ -501,8 +411,9 @@ bool pieceAtSquare(const U64 board, const int square) {
   }
 }
 
-moveList rayAttack(const int origin, const int modifier, const U64 NoNoZone, const U64 enemies, const U64 friendlies) {
-  moveList possibleMoves;
+// TODO: Optimization possible. Reduction from ints? Mask consolidation?
+linkedMoveList rayAttack(const int origin, const int modifier, const U64 NoNoZone, const U64 enemies, const U64 friendlies) {
+  linkedMoveList possibleMoves;
   int cursor = origin;
 
   while (true) {
@@ -516,136 +427,123 @@ moveList rayAttack(const int origin, const int modifier, const U64 NoNoZone, con
       break;
     }
     if(pieceAtSquare(enemies, cursor)) {
-      possibleMoves.createMove(origin, cursor);
+      possibleMoves.create(origin, cursor);
       break;
     }
-    possibleMoves.createMove(origin, cursor);
+    possibleMoves.create(origin, cursor);
   }
 
   return possibleMoves;
 }
 
-moveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
-  moveList possibleMoves;
-  moveList positions = generateMovesFromBitboard(rBoard);
+linkedMoveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
+  linkedMoveList possibleMoves;
+  linkedMoveList positions = generateMovesFromBitboard(rBoard);
 
-  for(int i = 0; i < positions.length; i++) {
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -8, Rank_8, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 8, Rank_1, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -1, File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 1, File_H, EnemyPieces, FriendlyPieces));
+  moveNode* i = positions.head;
+  while(i != NULL) {
+    possibleMoves += rayAttack((int)i->data.end, -8, Rank_8, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 8, Rank_1, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, -1, File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 1, File_H, EnemyPieces, FriendlyPieces);
+    i = i->next;
   }
 
+  positions.deleteList();
   return possibleMoves;
 }
 
-moveList possibleMovesWRooks(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWRooks(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesRooks(game.WR, info.WhitePieces, info.BlackPieces);
 }
 
-moveList possibleMovesBRooks(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBRooks(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesRooks(game.BR, info.BlackPieces, info.WhitePieces);
 }
 
-moveList possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
-  moveList possibleMoves;
-  moveList positions = generateMovesFromBitboard(rBoard);
+linkedMoveList possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
+  linkedMoveList possibleMoves;
+  linkedMoveList positions = generateMovesFromBitboard(rBoard);
 
-  for(int i = 0; i < positions.length; i++) {
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -9, Rank_8 | File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -7, Rank_8 | File_H, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 7, Rank_1 | File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 9, Rank_1 | File_H, EnemyPieces, FriendlyPieces));
+  moveNode* i = positions.head;
+  while(i != NULL) {
+    possibleMoves += rayAttack((int)i->data.end, -9, Rank_8 | File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, -7, Rank_8 | File_H, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 7, Rank_1 | File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 9, Rank_1 | File_H, EnemyPieces, FriendlyPieces);
+    i = i->next;
   }
 
+  positions.deleteList();
   return possibleMoves;
 }
 
-moveList possibleMovesWBishops(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWBishops(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesBishops(game.WB, info.WhitePieces, info.BlackPieces);
 }
 
-moveList possibleMovesBBishops(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBBishops(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesBishops(game.BB, info.BlackPieces, info.WhitePieces);
 }
 
-moveList possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
-  moveList possibleMoves;
-  moveList positions = generateMovesFromBitboard(qBoard);
+linkedMoveList possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
+  linkedMoveList possibleMoves;
+  linkedMoveList positions = generateMovesFromBitboard(qBoard);
 
-  for(int i = 0; i < positions.length; i++) {
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -8, Rank_8, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 8, Rank_1, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -1, File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 1, File_H, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -9, Rank_8 | File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, -7, Rank_8 | File_H, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 7, Rank_1 | File_A, EnemyPieces, FriendlyPieces));
-    possibleMoves.addMoveList(rayAttack((int)positions.moves[i].end, 9, Rank_1 | File_H, EnemyPieces, FriendlyPieces));
+  moveNode* i = positions.head;
+  while(i != NULL) {
+    possibleMoves += rayAttack((int)i->data.end, -8, Rank_8, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 8, Rank_1, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, -1, File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 1, File_H, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, -9, Rank_8 | File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, -7, Rank_8 | File_H, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 7, Rank_1 | File_A, EnemyPieces, FriendlyPieces);
+    possibleMoves += rayAttack((int)i->data.end, 9, Rank_1 | File_H, EnemyPieces, FriendlyPieces);
+    i = i->next;
   }
 
+  positions.deleteList();
   return possibleMoves;
 }
 
-moveList possibleMovesWQueens(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWQueens(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesQueens(game.WQ, info.WhitePieces, info.BlackPieces);
 }
 
-moveList possibleMovesBQueens(const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBQueens(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesQueens(game.BQ, info.BlackPieces, info.WhitePieces);
 }
 
 // Only guaranteed for standard chess
-moveList possibleMovesW(moveList history, const bitboards game) {
-  moveList possibleMoves;
+linkedMoveList possibleMovesW(linkedMoveList history, const bitboards game) {
+  linkedMoveList possibleMoves;
 
   extraBitboardsInfo info;
   info.updateFromBitboards(game);
 
-  moveList pawnMoves = possibleMovesWPawns(history, game, info);
-  possibleMoves.addMoveList(pawnMoves);
-
-  moveList knightMoves = possibleMovesWKnights(game, info);
-  possibleMoves.addMoveList(knightMoves);
-
-  moveList kingMoves = possibleMovesWKings(game, info);
-  possibleMoves.addMoveList(kingMoves);
-
-  moveList rookMoves = possibleMovesWRooks(game, info);
-  possibleMoves.addMoveList(rookMoves);
-
-  moveList bishopMoves = possibleMovesWBishops(game, info);
-  possibleMoves.addMoveList(bishopMoves);
-
-  moveList queenMoves = possibleMovesWQueens(game, info);
-  possibleMoves.addMoveList(queenMoves);
+  possibleMoves += possibleMovesWPawns(history, game, info);
+  possibleMoves += possibleMovesWKnights(game, info);
+  possibleMoves += possibleMovesWKings(game, info);
+  possibleMoves += possibleMovesWRooks(game, info);
+  possibleMoves += possibleMovesWBishops(game, info);
+  possibleMoves += possibleMovesWQueens(game, info);
 
   return possibleMoves;
 }
 
-moveList possibleMovesB(moveList history, const bitboards game) {
-  moveList possibleMoves;
+linkedMoveList possibleMovesB(linkedMoveList history, const bitboards game) {
+  linkedMoveList possibleMoves;
 
   extraBitboardsInfo info;
   info.updateFromBitboards(game);
 
-  moveList pawnMoves = possibleMovesBPawns(history, game, info);
-  possibleMoves.addMoveList(pawnMoves);
-
-  moveList knightMoves = possibleMovesBKnights(game, info);
-  possibleMoves.addMoveList(knightMoves);
-
-  moveList kingMoves = possibleMovesBKings(game, info);
-  possibleMoves.addMoveList(kingMoves);
-
-  moveList rookMoves = possibleMovesBRooks(game, info);
-  possibleMoves.addMoveList(rookMoves);
-
-  moveList bishopMoves = possibleMovesBBishops(game, info);
-  possibleMoves.addMoveList(bishopMoves);
-
-  moveList queenMoves = possibleMovesBQueens(game, info);
-  possibleMoves.addMoveList(queenMoves);
+  possibleMoves += possibleMovesBPawns(history, game, info);
+  possibleMoves += possibleMovesBKnights(game, info);
+  possibleMoves += possibleMovesBKings(game, info);
+  possibleMoves += possibleMovesBRooks(game, info);
+  possibleMoves += possibleMovesBBishops(game, info);
+  possibleMoves += possibleMovesBQueens(game, info);
 
   return possibleMoves;
 }

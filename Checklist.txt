@@ -13,5 +13,6 @@ To-Do
    Castling
    Zobrist Hashing
  ✔ Perft Function
+ ✔ Switch to linked move list
    Cleanup
    Refactor

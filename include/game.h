@@ -20,6 +20,16 @@ limitations under the License.
 #include <moves.h>
 #include <iostream> // For debugging only
 
+/* template for iterating through linkedMoveList
+
+moveNode* i = moves.head;
+while(i != NULL) {
+  // loop code
+  i = i->next;
+}
+
+*/
+
 struct boardNode {
   bitboards boards;
   boardNode* last;
@@ -50,8 +60,11 @@ bitboards boardStack::pop() {
 
 struct game {
   bitboards boards;
-  moveList history;
   boardStack boardHistory;
+
+  linkedMoveList history;
+  int historyListLength = 0;
+
   bool blacksTurn = 0;
 
   game() {
@@ -63,37 +76,42 @@ struct game {
   void makeMove(move moveMade) {
     boardHistory.push(boards);
     applyMove(&boards, moveMade);
-    history.addMove(moveMade);
+    history.add(moveMade);
+    historyListLength++;
     blacksTurn ^= 1;
   }
-  void undoMove(/*move moveUnmade*/) {
-    //move moveUnmade = history.moves[history.length - 1];
-    //unapplyMove(&boards, moveUnmade);
+  void undoMove() {
     boards = boardHistory.pop();
-    history.removeMove(history.length - 1);
+    history.remove(--historyListLength); // TODO: Could be replaced with stack
     blacksTurn ^= 1;
   }
 
   bool isGameLegal() {
-    moveList moves = generateSemilegalMoves();
-    for(int i = 0; i < moves.length; i++) {
-      if(attackOnKing(moves.moves[i], boards)) return false;
+    linkedMoveList moves = generateSemilegalMoves();
+
+    moveNode* i = moves.head;
+    while(i != NULL) {
+      if(attackOnKing(i->data, boards)) return false;
+      i = i->next;
     }
     return true;
   }
 
-  moveList generateLegalMoves() {
-    moveList moves = generateSemilegalMoves();
-    moveList returnedMoves;
-    for(int i = 0; i < moves.length; i++) {
-      makeMove(moves.moves[i]);
-      if(isGameLegal()) returnedMoves.addMove(moves.moves[i]);
+  linkedMoveList generateLegalMoves() {
+    linkedMoveList moves = generateSemilegalMoves();
+    linkedMoveList returnedMoves;
+
+    moveNode* i = moves.head;
+    while(i != NULL) {
+      makeMove(i->data);
+      if(isGameLegal()) returnedMoves.add(i->data);
       undoMove();
+      i = i->next;
     }
     return returnedMoves;
   }
 
-  moveList generateSemilegalMoves() {
+  linkedMoveList generateSemilegalMoves() {
     if(blacksTurn) {
       return possibleMovesB(history, boards);
     } else {
