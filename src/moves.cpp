@@ -75,7 +75,7 @@ void linkedMoveList::remove(int pos){
 	moveNode *current = new moveNode;
 	moveNode *previous = new moveNode;
 	current = head;
-	for(int i = 1; i < pos; i++){
+	for(int i = 1; (i < pos) && (current->next != NULL); i++){ //added the second condition, not sure if it works or makes sense
 		previous = current;
 		current = current->next;
 	}
