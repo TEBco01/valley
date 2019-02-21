@@ -16,35 +16,6 @@ limitations under the License.
 
 #include <moves.h>
 #include <iostream>
-//#include <bitboard.h> // For testing only
-
-struct infoBoards {
-  /*C64 FILE_A = 16843009ULL;
-  C64 FILE_H = 33686018ULL;
-  C64 FILE_AB = 18446744071587332481ULL;
-  C64 FILE_GH = 101058054ULL;
-  C64 RANK_1 = 510ULL;
-  C64 RANK_4 = 18446744073675997185ULL;
-  C64 RANK_5 = 0;
-  C64 RANK_8 = 0;
-  C64 CENTER = 0;
-  C64 EXTENDED_CENTER = 0;
-  C64 KING_SIDE = 0;
-  C64 QUEEN_SIDE = 0;
-  C64 KING_B7 = 0;
-  C64 KNIGHT_C6 = 0;
-  U64 NOT_WHITE_PIECES;
-  U64 BLACK_PIECES;
-  U64 EMPTY;*/
-};
-
-bool isLowercase(char character) {
-  if(character >= 97 && character <= 122) {
-    return true;
-  } else {
-    return false;
-  }
-}
 
 void linkedMoveList::add(move value){
 	moveNode *temp = new moveNode;
@@ -94,17 +65,6 @@ void linkedMoveList::operator=(linkedMoveList b){
 	this->tail = b.tail;
 };
 
-/*linkedMoveList::~linkedMoveList(){
-  moveNode *cur;
-  moveNode *temp;
-  cur = head;
-	while(temp != NULL){
-    temp = cur->next;
-		delete cur;
-    cur = temp;
-	}
-};*/
-
 void linkedMoveList::deleteList(){
   moveNode *cur;
   moveNode *temp;
@@ -118,15 +78,6 @@ void linkedMoveList::deleteList(){
   head = NULL;
   tail = NULL;
 };
-
-/*linkedMoveList linkedMoveList::operator+(linkedMoveList b){
-	linkedMoveList a;
-	a.head = this->head;
-	a.tail = this->tail;
-	a.tail->next = b.head; // Broken in mysterious ways
-	a.tail = b.tail;
-	return a;
-};*/
 
 void linkedMoveList::operator+=(linkedMoveList b){
   if(this->head == NULL) {
@@ -635,119 +586,6 @@ void applyMove(bitboards* game, move change) {
       break;
     case 11:
       setAllToZero(game, endMask << 8);
-      break;
-    default:
-      break;
-  }
-
-  /*if( game->WP & square ) {
-    //game->WP ^= 1ULL << (63ULL - (U64)change.start);
-    setAllToZero(game, )
-    game->WP |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->WN & square ) {
-    game->WN ^= 1ULL << (63ULL - (U64)change.start);
-    game->WN |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->WB & square ) {
-    game->WB ^= 1ULL << (63ULL - (U64)change.start);
-    game->WB |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->WR & square ) {
-    game->WR ^= 1ULL << (63ULL - (U64)change.start);
-    game->WR |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->WQ & square ) {
-    game->WQ ^= 1ULL << (63ULL - (U64)change.start);
-    game->WQ |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->WK & square ) {
-    game->WK ^= 1ULL << (63ULL - (U64)change.start);
-    game->WK |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->BP & square ) {
-    game->BP ^= 1ULL << (63ULL - (U64)change.start);
-    game->BP |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->BN & square ) {
-    game->BN ^= 1ULL << (63ULL - (U64)change.start);
-    game->BN |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->BB & square ) {
-    game->BB ^= 1ULL << (63ULL - (U64)change.start);
-    game->BB |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->BR & square ) {
-    game->BR ^= 1ULL << (63ULL - (U64)change.start);
-    game->BR |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->BQ & square ) {
-    game->BQ ^= 1ULL << (63ULL - (U64)change.start);
-    game->BQ |= 1ULL << (63ULL - (U64)change.end);
-  }
-  if( game->BK & square ) {
-    game->BK ^= 1ULL << (63ULL - (U64)change.start);
-    game->BK |= 1ULL << (63ULL - (U64)change.end);
-  }*/
-}
-
-void unapplyMove(bitboards* game, move change) {
-  U64 startMask = 1ULL << (63ULL - (U64)change.start);
-  U64 endMask = 1ULL << (63ULL - (U64)change.end);
-
-  setAllToZero(game, startMask);
-
-  checkBoardMove(game->WP, endMask, startMask);
-  checkBoardMove(game->WN, endMask, startMask);
-  checkBoardMove(game->WB, endMask, startMask);
-  checkBoardMove(game->WR, endMask, startMask);
-  checkBoardMove(game->WQ, endMask, startMask);
-  checkBoardMove(game->WK, endMask, startMask);
-  checkBoardMove(game->BP, endMask, startMask);
-  checkBoardMove(game->BN, endMask, startMask);
-  checkBoardMove(game->BB, endMask, startMask);
-  checkBoardMove(game->BR, endMask, startMask);
-  checkBoardMove(game->BQ, endMask, startMask);
-  checkBoardMove(game->BK, endMask, startMask);
-
-  switch(change.special) {
-    case 2:
-      setAllToZero(game, startMask);
-      game->WQ |= startMask;
-      break;
-    case 3:
-      setAllToZero(game, startMask);
-      game->WR |= startMask;
-      break;
-    case 4:
-      setAllToZero(game, startMask);
-      game->WN |= startMask;
-      break;
-    case 5:
-      setAllToZero(game, startMask);
-      game->WB |= startMask;
-      break;
-    case 6:
-      setAllToZero(game, startMask);
-      game->BQ |= startMask;
-      break;
-    case 7:
-      setAllToZero(game, startMask);
-      game->BR |= startMask;
-      break;
-    case 8:
-      setAllToZero(game, startMask);
-      game->BN |= startMask;
-      break;
-    case 9:
-      setAllToZero(game, startMask);
-      game->BB |= startMask;
-      break;
-    case 10:
-      setAllToZero(game, startMask >> 8);
-      break;
-    case 11:
-      setAllToZero(game, startMask << 8);
       break;
     default:
       break;
