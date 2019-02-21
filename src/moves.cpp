@@ -72,19 +72,19 @@ void linkedMoveList::create(byte start, byte end, byte special){
 };
 
 void linkedMoveList::remove(int pos){
-	if(pos == 1) {
+	if(pos == 0) {
 		moveNode *temp = head;
 		head = head->next;
 		delete temp;
 	} else {
 		moveNode *current = head->next;
 		moveNode *previous = head;
-		for(int i = 2; i < pos; i++){
+		for(int i = 1; i < pos; i++){
 			previous = current;
 			current = current->next;
 		}
 		previous->next = current->next;
-		if(current == tail) tail = previous;	
+		if(current == tail) tail = previous;
 		delete current;
 	}
 };
