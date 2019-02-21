@@ -82,7 +82,7 @@ struct game {
   }
   void undoMove() {
     boards = boardHistory.pop();
-    history.remove(--historyListLength); // TODO: Could be replaced with stack
+    history.remove(historyListLength--); // TODO: Could be replaced with stack
     blacksTurn ^= 1;
   }
 
