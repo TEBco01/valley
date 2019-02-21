@@ -120,7 +120,7 @@ void constantShiftGenerator(U64 board, int shift, int special, linkedMoveList& p
   possibleMoves += moves;
 }
 
-linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesWPawns(move lastMove, const bitboards game, const extraBitboardsInfo info) {
   linkedMoveList possibleMoves;
   // Move forward one
   U64 fw1 = ( (game.WP & ~Rank_7) << 8 ) & ~(info.BlackPieces | info.WhitePieces);
@@ -154,7 +154,8 @@ linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game,
   possibleMoves += prExtraList;
 
   // En passant
-  U64 ep = (game.BP & Rank_5) << 8;
+
+  /*U64 ep = (game.BP & Rank_5) << 8;
 
   U64 epL = ep & ((game.WP & ~File_A) << 9);
   linkedMoveList epLList = generateMovesFromBitboard(epL);
@@ -193,12 +194,12 @@ linkedMoveList possibleMovesWPawns(linkedMoveList history, const bitboards game,
     previous = i;
     i = i->next;
   }
-  possibleMoves += epRList;
+  possibleMoves += epRList;*/
 
   return possibleMoves;
 }
 
-linkedMoveList possibleMovesBPawns(linkedMoveList history, const bitboards game, const extraBitboardsInfo info) {
+linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const extraBitboardsInfo info) {
   linkedMoveList possibleMoves;
   // Move forward one
   U64 fw1 = ( (game.BP & ~Rank_2) >> 8 ) & ~(info.BlackPieces | info.WhitePieces);
@@ -473,13 +474,13 @@ linkedMoveList possibleMovesBQueens(const bitboards game, const extraBitboardsIn
 }
 
 // Only guaranteed for standard chess
-linkedMoveList possibleMovesW(linkedMoveList history, const bitboards game) {
+linkedMoveList possibleMovesW(move lastMove, const bitboards game) {
   linkedMoveList possibleMoves;
 
   extraBitboardsInfo info;
   info.updateFromBitboards(game);
 
-  possibleMoves += possibleMovesWPawns(history, game, info);
+  possibleMoves += possibleMovesWPawns(lastMove, game, info);
   possibleMoves += possibleMovesWKnights(game, info);
   possibleMoves += possibleMovesWKings(game, info);
   possibleMoves += possibleMovesWRooks(game, info);
@@ -489,13 +490,13 @@ linkedMoveList possibleMovesW(linkedMoveList history, const bitboards game) {
   return possibleMoves;
 }
 
-linkedMoveList possibleMovesB(linkedMoveList history, const bitboards game) {
+linkedMoveList possibleMovesB(move lastMove, const bitboards game) {
   linkedMoveList possibleMoves;
 
   extraBitboardsInfo info;
   info.updateFromBitboards(game);
 
-  possibleMoves += possibleMovesBPawns(history, game, info);
+  possibleMoves += possibleMovesBPawns(lastMove, game, info);
   possibleMoves += possibleMovesBKnights(game, info);
   possibleMoves += possibleMovesBKings(game, info);
   possibleMoves += possibleMovesBRooks(game, info);
