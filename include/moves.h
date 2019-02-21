@@ -16,7 +16,7 @@ limitations under the License.
 #pragma once
 
 #include <bitboard.h>
-#include <string>
+#include <cstddef>
 
 typedef unsigned char byte;
 
@@ -60,10 +60,8 @@ class linkedMoveList {
 		void remove(int pos);
 		void create(byte start, byte end, byte special);
     void create(byte start, byte end) {this->create(start, end, 0);}
-		//linkedMoveList operator+(linkedMoveList b);
 		void operator=(linkedMoveList b);
 		void operator+=(linkedMoveList b);
-		//~linkedMoveList();
     void deleteList(); // Manual deconstruction
 		moveNode *head, *tail;
 };
@@ -118,10 +116,6 @@ struct moveList {
 
 linkedMoveList possibleMovesW(linkedMoveList history, const bitboards game);
 linkedMoveList possibleMovesB(linkedMoveList history, const bitboards game);
-
-//moveList possibleMovesW(moveList history, const bitboards game); //remove later
-//moveList possibleMovesB(moveList history, const bitboards game); //remove later
-//moveList possibleMovesArrayW(moveList history, char game[64]);
 
 void applyMove(bitboards* game, move change);
 void unapplyMove(bitboards* game, move change);
