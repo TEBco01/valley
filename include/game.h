@@ -58,6 +58,34 @@ bitboards boardStack::pop() {
  return boards;
 }
 
+struct movePancake {
+	move data;
+	movePancake *last;
+};
+
+class moveStack {
+	public:
+		void push(move a);
+		move pop();
+	private:
+		movePancake *tail = NULL;
+};
+
+void moveStack::push(move a){
+	movePancake *pancake = new movePancake;
+	pancake->data = a;
+	pancake->last = tail;
+	tail = pancake;
+};
+
+move moveStack::pop(){
+	movePancake *newtail = tail->last;
+	move moves = tail->data;
+	delete tail;
+	tail = newtail;
+	return moves;
+};
+
 struct game {
   bitboards boards;
   boardStack boardHistory;
