@@ -113,9 +113,19 @@ struct game {
 
   linkedMoveList generateSemilegalMoves() {
     if(blacksTurn) {
-      return possibleMovesB(history, boards);
+      if(history.tail != NULL) {
+        return possibleMovesB(history.tail->data, boards);
+      } else {
+        move nullMove;
+        return possibleMovesB(nullMove, boards);
+      }
     } else {
-      return possibleMovesW(history, boards);
+      if(history.tail != NULL) {
+        return possibleMovesW(history.tail->data, boards);
+      } else {
+        move nullMove;
+        return possibleMovesW(nullMove, boards);
+      }
     }
   }
 };

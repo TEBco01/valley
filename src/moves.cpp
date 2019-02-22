@@ -154,7 +154,12 @@ linkedMoveList possibleMovesWPawns(move lastMove, const bitboards game, const ex
   possibleMoves += prExtraList;
 
   // En passant
+	if(lastMove.start == 0 && lastMove.end == 0) {
+		if(16 <= lastMove.end && lastMove.end <= 23) {
+			//if()
 
+		}
+	}
   /*U64 ep = (game.BP & Rank_5) << 8;
 
   U64 epL = ep & ((game.WP & ~File_A) << 9);
@@ -233,6 +238,7 @@ linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const ex
   possibleMoves += prExtraList;
 
   // En passant
+	/*
   U64 ep = (game.BP & Rank_4) >> 8;
 
   U64 epL = ep & ((game.BP & ~File_H) >> 9);
@@ -272,7 +278,7 @@ linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const ex
     previous = i;
     i = i->next;
   }
-  possibleMoves += epRList;
+  possibleMoves += epRList;*/
 
   return possibleMoves;
 }
