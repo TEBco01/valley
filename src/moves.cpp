@@ -233,7 +233,7 @@ linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const ex
   possibleMoves += prExtraList;
 
   // En passant
-  U64 ep = (game.BP & Rank_4) >> 8;
+/*  U64 ep = (game.BP & Rank_4) >> 8;
 
   U64 epL = ep & ((game.BP & ~File_H) >> 9);
   linkedMoveList epLList = generateMovesFromBitboard(epL);
@@ -272,7 +272,7 @@ linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const ex
     previous = i;
     i = i->next;
   }
-  possibleMoves += epRList;
+  possibleMoves += epRList; */
 
   return possibleMoves;
 }

@@ -67,8 +67,7 @@ class moveStack {
 	public:
 		void push(move a);
 		move pop();
-	private:
-		movePancake *tail = NULL;
+		movePancake *tail = new movePancake;
 };
 
 void moveStack::push(move a){
@@ -90,8 +89,9 @@ struct game {
   bitboards boards;
   boardStack boardHistory;
 
-  linkedMoveList history;
-  int historyListLength = 0;
+  moveStack history;
+  //linkedMoveList history;
+  //int historyListLength = 0;
 
   bool blacksTurn = 0;
 
@@ -104,13 +104,13 @@ struct game {
   void makeMove(move moveMade) {
     boardHistory.push(boards);
     applyMove(&boards, moveMade);
-    history.add(moveMade);
-    historyListLength++;
+    history.push(moveMade);
+    //historyListLength++;
     blacksTurn ^= 1;
   }
   void undoMove() {
     boards = boardHistory.pop();
-    history.remove(--historyListLength); // TODO: Could be replaced with stack
+    history.pop();
     blacksTurn ^= 1;
   }
 
@@ -141,9 +141,9 @@ struct game {
 
   linkedMoveList generateSemilegalMoves() {
     if(blacksTurn) {
-      return possibleMovesB(history, boards);
+      return possibleMovesB(history.tail->data, boards);
     } else {
-      return possibleMovesW(history, boards);
+      return possibleMovesW(history.tail->data, boards);
     }
   }
 };

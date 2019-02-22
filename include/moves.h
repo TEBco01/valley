@@ -114,8 +114,8 @@ struct moveList {
   }
 };
 
-linkedMoveList possibleMovesW(linkedMoveList history, const bitboards game);
-linkedMoveList possibleMovesB(linkedMoveList history, const bitboards game);
+linkedMoveList possibleMovesW(move lastMove, const bitboards game);
+linkedMoveList possibleMovesB(move lastMove, const bitboards game);
 
 void applyMove(bitboards* game, move change);
 void unapplyMove(bitboards* game, move change);
