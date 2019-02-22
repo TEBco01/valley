@@ -66,7 +66,9 @@ struct movePancake {
 class moveStack {
 	public:
 		void push(move a);
-		move pop();
+		move pop(); // TODO: Would an empty pop be more efficient? We never need to peek while we pop
+    void emptyPop();
+    move peek();
 		movePancake *tail = new movePancake;
 };
 
@@ -83,6 +85,22 @@ move moveStack::pop(){
 	delete tail;
 	tail = newtail;
 	return moves;
+};
+
+void moveStack::emptyPop(){
+	movePancake *newtail = tail->last;
+	delete tail;
+	tail = newtail;
+};
+
+move moveStack::peek(){
+  if(tail != NULL)
+	 return tail->data;
+  else
+  {
+    move emptyMove;
+    return emptyMove;
+  }
 };
 
 struct game {
@@ -107,7 +125,7 @@ struct game {
   }
   void undoMove() {
     boards = boardHistory.pop();
-    history.pop();
+    history.emptyPop();
     blacksTurn ^= 1;
   }
 
@@ -138,19 +156,9 @@ struct game {
 
   linkedMoveList generateSemilegalMoves() {
     if(blacksTurn) {
-      if(history.tail != NULL) {
-        return possibleMovesB(history.tail->data, boards);
-      } else {
-        move nullMove;
-        return possibleMovesB(nullMove, boards);
-      }
+      return possibleMovesB(history.peek(), boards);
     } else {
-      if(history.tail != NULL) {
-        return possibleMovesW(history.tail->data, boards);
-      } else {
-        move nullMove;
-        return possibleMovesW(nullMove, boards);
-      }
+      return possibleMovesW(history.peek(), boards);
     }
   }
 };
