@@ -67,8 +67,9 @@ class moveStack {
 	public:
 		void push(move a);
 		move pop(); // TODO: Would an empty pop be more efficient? We never need to peek while we pop
-    void emptyPop();
-    move peek();
+   		void emptyPop();
+    		move peek();
+	private:
 		movePancake *tail = NULL;
 };
 
