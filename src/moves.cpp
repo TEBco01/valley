@@ -120,6 +120,14 @@ void constantShiftGenerator(U64 board, int shift, int special, linkedMoveList& p
   possibleMoves += moves;
 }
 
+bool pieceAtSquare(const U64 board, const int square) {
+  if( board & 1ULL << (63ULL - (U64)square) ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 linkedMoveList possibleMovesWPawns(move lastMove, const bitboards game, const extraBitboardsInfo info) {
   linkedMoveList possibleMoves;
   // Move forward one
@@ -154,52 +162,18 @@ linkedMoveList possibleMovesWPawns(move lastMove, const bitboards game, const ex
   possibleMoves += prExtraList;
 
   // En passant
-	if(lastMove.start == 0 && lastMove.end == 0) {
-		if(16 <= lastMove.end && lastMove.end <= 23) {
-			//if()
-
+	if(!(lastMove.start == 0 && lastMove.end == 0)) { // Was there a last move?
+		if(24 <= lastMove.end && lastMove.end <= 31) { // Did it end in our range?
+			if(pieceAtSquare(game.BP, lastMove.end)) { // Was it an enemy pawn?
+				if(lastMove.end >= 25) // Was it in bounds on the left?
+					if(pieceAtSquare(game.WP, lastMove.end - 1)) // Is there a friendly piece on the left side?
+						possibleMoves.create(lastMove.end - 1, lastMove.end - 8);
+				if(lastMove.end <= 30) // Was it in bounds on the right?
+					if(pieceAtSquare(game.WP, lastMove.end + 1)) // Is there a friendly piece on the right side?
+						possibleMoves.create(lastMove.end + 1, lastMove.end - 8);
+			}
 		}
 	}
-  /*U64 ep = (game.BP & Rank_5) << 8;
-
-  U64 epL = ep & ((game.WP & ~File_A) << 9);
-  linkedMoveList epLList = generateMovesFromBitboard(epL);
-
-  i = epLList.head;
-  moveNode* previous = NULL;
-  while(i != NULL) {
-    if(!(history.tail->data.end == i->data.end + 8)) { // Checks to see if enemy pawn moved last
-      previous->next = i->next;
-      delete i;
-      i = previous;
-    }
-    else {
-      i->data.start = i->data.end + 9;
-      i->data.special = 10;
-    }
-    previous = i;
-    i = i->next;
-  }
-  possibleMoves += epLList;
-
-  U64 epR = ep & ((game.WP & ~File_H) << 7);
-  linkedMoveList epRList = generateMovesFromBitboard(epR);
-  i = epRList.head;
-  previous = NULL;
-  while(i != NULL) {
-    if(!(history.tail->data.end == i->data.end + 8)) {
-      previous->next = i->next;
-      delete i;
-      i = previous;
-    }
-    else {
-      i->data.start = i->data.end + 9;
-      i->data.special = 10;
-    }
-    previous = i;
-    i = i->next;
-  }
-  possibleMoves += epRList;*/
 
   return possibleMoves;
 }
@@ -238,47 +212,18 @@ linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const ex
   possibleMoves += prExtraList;
 
   // En passant
-	/*
-  U64 ep = (game.BP & Rank_4) >> 8;
-
-  U64 epL = ep & ((game.BP & ~File_H) >> 9);
-  linkedMoveList epLList = generateMovesFromBitboard(epL);
-
-  i = epLList.head;
-  moveNode* previous = NULL;
-  while(i != NULL) {
-    if(!(history.tail->data.end == i->data.end - 8)) { // Checks to see if enemy pawn moved last
-      previous->next = i->next;
-      delete i;
-      i = previous;
-    }
-    else {
-      i->data.start = i->data.end - 9;
-      i->data.special = 10;
-    }
-    previous = i;
-    i = i->next;
-  }
-  possibleMoves += epLList;
-
-  U64 epR = ep & ((game.BP & ~File_A) << 7);
-  linkedMoveList epRList = generateMovesFromBitboard(epR);
-  i = epRList.head;
-  previous = NULL;
-  while(i != NULL) {
-    if(!(history.tail->data.end == i->data.end - 8)) {
-      previous->next = i->next;
-      delete i;
-      i = previous;
-    }
-    else {
-      i->data.start = i->data.end -7;
-      i->data.special = 10;
-    }
-    previous = i;
-    i = i->next;
-  }
-  possibleMoves += epRList;*/
+	if(!(lastMove.start == 0 && lastMove.end == 0)) { // Was there a last move?
+		if(32 <= lastMove.end && lastMove.end <= 39) { // Did it end in our range?
+			if(pieceAtSquare(game.WP, lastMove.end)) { // Was it an enemy pawn?
+				if(lastMove.end >= 33) // Was it in bounds on the left?
+					if(pieceAtSquare(game.BP, lastMove.end - 1)) // Is there a friendly piece on the left side?
+						possibleMoves.create(lastMove.end - 1, lastMove.end + 8, 10);
+				if(lastMove.end <= 38) // Was it in bounds on the right?
+					if(pieceAtSquare(game.BP, lastMove.end + 1)) // Is there a friendly piece on the right side?
+						possibleMoves.create(lastMove.end + 1, lastMove.end + 8, 10);
+			}
+		}
+	}
 
   return possibleMoves;
 }
@@ -365,14 +310,6 @@ linkedMoveList possibleMovesWKings(const bitboards game, const extraBitboardsInf
 
 linkedMoveList possibleMovesBKings(const bitboards game, const extraBitboardsInfo info) {
   return possibleMovesKings(game.BK, info.BlackPieces);
-}
-
-bool pieceAtSquare(const U64 board, const int square) {
-  if( board & 1ULL << (63ULL - (U64)square) ) {
-    return true;
-  } else {
-    return false;
-  }
 }
 
 // TODO: Optimization possible. Reduction from ints? Mask consolidation?
