@@ -90,8 +90,6 @@ struct game {
   boardStack boardHistory;
 
   moveStack history;
-  //linkedMoveList history;
-  //int historyListLength = 0;
 
   bool blacksTurn = 0;
 
@@ -105,7 +103,6 @@ struct game {
     boardHistory.push(boards);
     applyMove(&boards, moveMade);
     history.push(moveMade);
-    //historyListLength++;
     blacksTurn ^= 1;
   }
   void undoMove() {
