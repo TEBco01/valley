@@ -58,12 +58,38 @@ bitboards boardStack::pop() {
  return boards;
 }
 
+struct movePancake {
+	move data;
+	movePancake *last;
+};
+
+class moveStack {
+	public:
+		void push(move a);
+		move pop();
+		movePancake *tail = new movePancake;
+};
+
+void moveStack::push(move a){
+	movePancake *pancake = new movePancake;
+	pancake->data = a;
+	pancake->last = tail;
+	tail = pancake;
+};
+
+move moveStack::pop(){
+	movePancake *newtail = tail->last;
+	move moves = tail->data;
+	delete tail;
+	tail = newtail;
+	return moves;
+};
+
 struct game {
   bitboards boards;
   boardStack boardHistory;
 
-  linkedMoveList history;
-  int historyListLength = 0;
+  moveStack history;
 
   bool blacksTurn = 0;
 
@@ -76,13 +102,12 @@ struct game {
   void makeMove(move moveMade) {
     boardHistory.push(boards);
     applyMove(&boards, moveMade);
-    history.add(moveMade);
-    historyListLength++;
+    history.push(moveMade);
     blacksTurn ^= 1;
   }
   void undoMove() {
     boards = boardHistory.pop();
-    history.remove(--historyListLength); // TODO: Could be replaced with stack
+    history.pop();
     blacksTurn ^= 1;
   }
 
