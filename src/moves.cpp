@@ -487,11 +487,13 @@ void setAllToZero(bitboards* game, U64 endMask) {
   game->BK &= mask;
 }
 
-void checkBoardMove(U64& board, U64 startMask, U64 endMask) {
+bool checkBoardMove(U64& board, U64 startMask, U64 endMask) { // TODO: possible optimization by making returnless version
   if( board & startMask ) {
     board &= ~startMask;
     board |= endMask;
+		return true;
   }
+	return false;
 }
 
 // Note: lots of room for optimization
@@ -506,25 +508,40 @@ void applyMove(bitboards* game, move change) {
   checkBoardMove(game->WB, startMask, endMask);
   checkBoardMove(game->WR, startMask, endMask);
   checkBoardMove(game->WQ, startMask, endMask);
-  checkBoardMove(game->WK, startMask, endMask);
+  if(checkBoardMove(game->WK, startMask, endMask)) { // TODO: Posible optimization by checking position number instead
+		game->castleInfo.whiteACan = false;
+		game->castleInfo.whiteHCan = false;
+	}
   checkBoardMove(game->BP, startMask, endMask);
   checkBoardMove(game->BN, startMask, endMask);
   checkBoardMove(game->BB, startMask, endMask);
   checkBoardMove(game->BR, startMask, endMask);
   checkBoardMove(game->BQ, startMask, endMask);
-  checkBoardMove(game->BK, startMask, endMask);
+  if(checkBoardMove(game->BK, startMask, endMask)) {
+		game->castleInfo.blackACan = false;
+		game->castleInfo.blackHCan = false;
+	}
+
+	if(change.start == 63) {
+		game->castleInfo.blackHCan = false;
+	} else if(change.start == 56) {
+		game->castleInfo.blackACan = false;
+	} else if(change.start == 0) {
+		game->castleInfo.whiteACan = false;
+	} else if(change.start == 7)
+		game->castleInfo.whiteHCan = false;
 
   switch(change.special) { // Check moves.h for the list of special moves. TODO: use an enum instead of a manual code
 		case 1:
 			if(change.start < 8) {
-				game->BK &= ~576460752303423488ULL;
+				setAllToZero(game, 576460752303423488ULL);
 				if(change.end == 3) {
 					game->BK |= 2305843009213693952ULL;
 				} else {
 					game->BK |= 144115188075855872ULL;
 				}
 			} else {
-				game->WK &= ~8ULL;
+				setAllToZero(game, 8ULL);
 				if(change.end == 59) {
 					game->WK |= 32ULL;
 				} else {
