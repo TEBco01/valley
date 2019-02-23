@@ -337,7 +337,7 @@ linkedMoveList rayAttack(const int origin, const int modifier, const U64 NoNoZon
   return possibleMoves;
 }
 
-linkedMoveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
+linkedMoveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces, castleBools castleInfo, bool black) {
   linkedMoveList possibleMoves;
   linkedMoveList positions = generateMovesFromBitboard(rBoard);
 
@@ -351,15 +351,36 @@ linkedMoveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, co
   }
 
   positions.deleteList();
+
+	if(black) {
+		if(castleInfo.blackACan) {
+			if(!(8070450532247928832ULL & (FriendlyPieces | EnemyPieces) )) // Checks for pieces between the rook and king
+				possibleMoves.create(0, 3, 1);
+		}
+		if(castleInfo.blackHCan) {
+			if(!(432345564227567616ULL & (FriendlyPieces | EnemyPieces) ))
+				possibleMoves.create(7, 5, 1);
+		}
+	} else {
+		if(castleInfo.whiteACan) {
+			if(!(112ULL & (FriendlyPieces | EnemyPieces) ))
+				possibleMoves.create(56, 59, 1);
+		}
+		if(castleInfo.whiteHCan) {
+			if(!(6ULL & (FriendlyPieces | EnemyPieces) ))
+				possibleMoves.create(63, 61, 1);
+		}
+	}
+
   return possibleMoves;
 }
 
 linkedMoveList possibleMovesWRooks(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesRooks(game.WR, info.WhitePieces, info.BlackPieces);
+  return possibleMovesRooks(game.WR, info.WhitePieces, info.BlackPieces, game.castleInfo, false);
 }
 
 linkedMoveList possibleMovesBRooks(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesRooks(game.BR, info.BlackPieces, info.WhitePieces);
+  return possibleMovesRooks(game.BR, info.BlackPieces, info.WhitePieces, game.castleInfo, true);
 }
 
 linkedMoveList possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {

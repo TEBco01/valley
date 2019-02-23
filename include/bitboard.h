@@ -21,8 +21,14 @@ typedef unsigned long long U64;
 typedef const unsigned long long C64;
 //#define C64(constantU64) constantU64##ULL
 
+struct castleBools {
+  bool whiteACan = true, whiteHCan = true, blackACan = true, blackHCan = true;
+};
+
 struct bitboards {
   U64 WP=0,WN=0,WB=0,WR=0,WQ=0,WK=0,BP=0,BN=0,BB=0,BR=0,BQ=0,BK=0;
+
+  castleBools castleInfo; // This isn't really part of the bitboards, but makes the game object cleaner
 
 private:
   //U64 arrayToBitboard(const char array[64], char character);
