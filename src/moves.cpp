@@ -437,6 +437,7 @@ linkedMoveList possibleMovesBQueens(const bitboards game, const extraBitboardsIn
   return possibleMovesQueens(game.BQ, info.BlackPieces, info.WhitePieces);
 }
 
+// List all moves the player can make for the given game
 // Only guaranteed for standard chess
 linkedMoveList possibleMovesW(move lastMove, const bitboards game) {
   linkedMoveList possibleMoves;
@@ -513,7 +514,24 @@ void applyMove(bitboards* game, move change) {
   checkBoardMove(game->BQ, startMask, endMask);
   checkBoardMove(game->BK, startMask, endMask);
 
-  switch(change.special) {
+  switch(change.special) { // Check moves.h for the list of special moves. TODO: use an enum instead of a manual code
+		case 1:
+			if(change.start < 8) {
+				game->BK &= ~576460752303423488ULL;
+				if(change.end == 3) {
+					game->BK |= 2305843009213693952ULL;
+				} else {
+					game->BK |= 144115188075855872ULL;
+				}
+			} else {
+				game->WK &= ~8ULL;
+				if(change.end == 59) {
+					game->WK |= 32ULL;
+				} else {
+					game->WK |= 2ULL;
+				}
+			}
+			break;
     case 2:
       setAllToZero(game, endMask);
       game->WQ |= endMask;
