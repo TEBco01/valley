@@ -277,28 +277,28 @@ linkedMoveList possibleMovesBKnights(const bitboards game, const extraBitboardsI
 linkedMoveList possibleMovesKings(const U64 kBoard, const U64 FriendlyPieces) {
   linkedMoveList possibleMoves;
 
-  U64 u = ((kBoard & ~(File_H)) << 8) & ~FriendlyPieces;
+  U64 u = ((kBoard & ~(Rank_8)) << 8) & ~FriendlyPieces;
   constantShiftGenerator(u, 8, possibleMoves);
 
   U64 ur = ((kBoard & ~(File_H | Rank_8)) << 7) & ~FriendlyPieces;
   constantShiftGenerator(ur, 7, possibleMoves);
 
-  U64 ul = ((kBoard & ~(File_H | Rank_1)) << 9) & ~FriendlyPieces;
+  U64 ul = ((kBoard & ~(File_A | Rank_8)) << 9) & ~FriendlyPieces;
   constantShiftGenerator(ul, 9, possibleMoves);
 
-  U64 l = ((kBoard & ~(Rank_1)) << 1) & ~FriendlyPieces;
+  U64 l = ((kBoard & ~(File_A)) << 1) & ~FriendlyPieces;
   constantShiftGenerator(l, 1, possibleMoves);
 
-  U64 r = ((kBoard & ~(File_H | Rank_1)) >> 1) & ~FriendlyPieces;
+  U64 r = ((kBoard & ~(File_H)) >> 1) & ~FriendlyPieces;
   constantShiftGenerator(r, -1, possibleMoves);
 
-  U64 d = ((kBoard & ~(File_A)) >> 8) & ~FriendlyPieces;
+  U64 d = ((kBoard & ~(Rank_1)) >> 8) & ~FriendlyPieces;
   constantShiftGenerator(d, -8, possibleMoves);
 
-  U64 dr = ((kBoard & ~(File_A | Rank_8)) >> 9) & ~FriendlyPieces;
+  U64 dr = ((kBoard & ~(File_H | Rank_1)) >> 9) & ~FriendlyPieces;
   constantShiftGenerator(dr, -9, possibleMoves);
 
-  U64 dl = ((kBoard & ~(File_H | Rank_1)) >> 7) & ~FriendlyPieces;
+  U64 dl = ((kBoard & ~(File_A | Rank_1)) >> 7) & ~FriendlyPieces;
   constantShiftGenerator(dl, -7, possibleMoves);
 
   return possibleMoves;
