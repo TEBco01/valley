@@ -172,7 +172,7 @@ U64 Perft(int depth, game Game)
 
 int main() {
   game Game;
-  std::cout << Perft(3, Game) << std::endl;;
+  std::cout << Perft(4, Game) << std::endl;;
 
   return 0;
 }
