@@ -172,7 +172,30 @@ U64 Perft(int depth, game Game)
 
 int main() {
   game Game;
-  std::cout << Perft(3, Game) << std::endl;;
+  /*move d2d3;
+  d2d3.start = 51;
+  d2d3.end = 43;
+  Game.makeMove(d2d3);
+  move a7a6;
+  d2d3.start = 8;
+  d2d3.end = 16;
+  Game.makeMove(a7a6);*/
+
+  int depth = 3;
+  int number = 0;
+
+  linkedMoveList moves = Game.generateSemilegalMoves();
+  moveNode* i = moves.head;
+  while(i != NULL) {
+    Game.makeMove(i->data);
+    int subnumber = Perft(depth - 1, Game);
+    number += subnumber;
+    std::cout << moveToAlgebraic(i->data) << ": " << subnumber << std::endl;
+    Game.undoMove();
+    i = i->next;
+  }
+
+  std::cout << std::endl << "Nodes searched: " << number << std::endl;;
 
   return 0;
 }
