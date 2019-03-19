@@ -152,6 +152,21 @@ std::string moveToAlgebraic(const move change) {
   return squareToAlgebraic(change.start) + squareToAlgebraic(change.end);
 }
 
+// Does not check for bounds. Liable for error TODO: Fix
+byte algebraicToSquare(const char* squareString) {
+  byte returnValue;
+  returnValue = squareString[0] - 'a';
+  returnValue += 8 * (8 - (squareString[1] - '0'));
+  return returnValue;
+}
+
+move algebraicToMove(const char* moveString) {
+  move returnMove;
+  returnMove.start = algebraicToSquare(moveString);
+  returnMove.end = algebraicToSquare(moveString + 2);
+  return returnMove;
+}
+
 U64 Perft(int depth, game Game)
 {
     U64 nodes = 0;
