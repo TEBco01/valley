@@ -131,13 +131,18 @@ struct game {
   }
 
   bool isGameLegal() {
-    linkedMoveList moves = generateSemilegalMoves();
+    linkedMoveList moves = generateSemilegalMoves(); // TODO: Big optimization by reusing these generated moves if the depth increases
 
     moveNode* i = moves.head;
     while(i != NULL) {
-      if(attackOnKing(i->data, boards)) return false;
+      if(attackOnKing(i->data, boards))
+      {
+        moves.deleteList();
+        return false;
+      }
       i = i->next;
     }
+    moves.deleteList();
     return true;
   }
 
@@ -152,6 +157,7 @@ struct game {
       undoMove();
       i = i->next;
     }
+    moves.deleteList();
     return returnedMoves;
   }
 

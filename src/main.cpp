@@ -152,13 +152,28 @@ std::string moveToAlgebraic(const move change) {
   return squareToAlgebraic(change.start) + squareToAlgebraic(change.end);
 }
 
+// Does not check for bounds. Liable for error TODO: Fix
+byte algebraicToSquare(const char* squareString) {
+  byte returnValue;
+  returnValue = squareString[0] - 'a';
+  returnValue += 8 * (8 - (squareString[1] - '0'));
+  return returnValue;
+}
+
+move algebraicToMove(const char* moveString) {
+  move returnMove;
+  returnMove.start = algebraicToSquare(moveString);
+  returnMove.end = algebraicToSquare(moveString + 2);
+  return returnMove;
+}
+
 U64 Perft(int depth, game Game)
 {
     U64 nodes = 0;
 
     if (depth == 0) return 1;
 
-    linkedMoveList moves = Game.generateSemilegalMoves();
+    linkedMoveList moves = Game.generateLegalMoves();
 
     moveNode* i = moves.head;
     while(i != NULL) {
@@ -167,12 +182,36 @@ U64 Perft(int depth, game Game)
       Game.undoMove();
       i = i->next;
     }
+    moves.deleteList();
     return nodes;
 }
 
 int main() {
   game Game;
-  std::cout << Perft(3, Game) << std::endl;;
+  /*move d2d3;
+  d2d3.start = 51;
+  d2d3.end = 43;
+  Game.makeMove(d2d3);
+  move a7a6;
+  d2d3.start = 8;
+  d2d3.end = 16;
+  Game.makeMove(a7a6);*/
+
+  int depth = 3;
+  int number = 0;
+
+  linkedMoveList moves = Game.generateSemilegalMoves();
+  moveNode* i = moves.head;
+  while(i != NULL) {
+    Game.makeMove(i->data);
+    int subnumber = Perft(depth - 1, Game);
+    number += subnumber;
+    std::cout << moveToAlgebraic(i->data) << ": " << subnumber << std::endl;
+    Game.undoMove();
+    i = i->next;
+  }
+
+  std::cout << std::endl << "Nodes searched: " << number << std::endl;;
 
   return 0;
 }
