@@ -69,6 +69,7 @@ void linkedMoveList::deleteList(){
   moveNode *cur;
   moveNode *temp;
   cur = head;
+	temp = head;
 	while(temp != NULL){
     temp = cur->next;
 		delete cur;

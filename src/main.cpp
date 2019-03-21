@@ -173,7 +173,7 @@ U64 Perft(int depth, game Game)
 
     if (depth == 0) return 1;
 
-    linkedMoveList moves = Game.generateSemilegalMoves();
+    linkedMoveList moves = Game.generateLegalMoves();
 
     moveNode* i = moves.head;
     while(i != NULL) {
@@ -182,6 +182,7 @@ U64 Perft(int depth, game Game)
       Game.undoMove();
       i = i->next;
     }
+    moves.deleteList();
     return nodes;
 }
 
