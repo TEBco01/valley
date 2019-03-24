@@ -20,6 +20,11 @@ limitations under the License.
 #include <cstdlib> // For random
 #include <game.h>
 
+// For files
+#include <iostream>
+#include <fstream>
+#include <cstring>
+
 void printArray(char array[64]) {
   for(int y = 0, i = 0; y < 8; y++) {
     for(int x = 0; x < 8; x++, i++) {
@@ -186,22 +191,317 @@ U64 Perft(int depth, game Game)
     return nodes;
 }
 
+void generateStockfishPerft(linkedMoveList history, int depth) {
+  std::ofstream inputFile ("stockfishInput");
+  std::string moves;
+
+  moveNode* i = history.head;
+  while(i != NULL) {
+    moves += " ";
+    moves += moveToAlgebraic(i->data);
+    i = i->next;
+  }
+
+  inputFile << "position startpos moves" << moves << std::endl;
+  inputFile << "go perft " << depth << std::endl;
+  inputFile.close();
+}
+
+linkedMoveList getStockfishMoves() {
+  std::ifstream outputFile ("stockfishOutput");
+
+  linkedMoveList returnList;
+
+  std::string line;
+  std::getline(outputFile, line);
+  while (std::getline(outputFile, line))
+  {
+      if(line == "")
+        break;
+
+      char cString[16];
+      strcpy(cString, line.c_str());
+      returnList.add(algebraicToMove(cString));
+  }
+  outputFile.close();
+  return returnList;
+}
+
+bool movesSame(move a, move b) {
+  if(moveToAlgebraic(a) == moveToAlgebraic(b))
+    return true;
+  return false;
+}
+
+struct moveCheck {
+  move thisMove;
+  int thisCount = 0;
+  bool isAccounted = false;
+};
+
+bool checkMovesSame(linkedMoveList history, linkedMoveList ourMoves) {
+  generateStockfishPerft(history, 1);
+  system("cat stockfishInput | stockfish > stockfishOutput");
+  linkedMoveList stockfishMoves = getStockfishMoves();
+  //stockfishMoves.remove(0);
+
+  int length1 = 0;
+  moveNode* i = ourMoves.head;
+  while(i != NULL) {
+    length1++;
+    i = i->next;
+  }
+
+  int length2 = 0;
+  i = stockfishMoves.head;
+  while(i != NULL) {
+    length2++;
+    i = i->next;
+  }
+
+  moveCheck moveChecks1[length1];
+  moveCheck moveChecks2[length2];
+
+  i = ourMoves.head;
+  int j = 0;
+  while(i != NULL) {
+    moveChecks1[j].thisMove = i->data;
+    j++;
+    i = i->next;
+  }
+
+  i = stockfishMoves.head;
+  j = 0;
+  while(i != NULL) {
+    moveChecks2[j].thisMove = i->data;
+    j++;
+    i = i->next;
+  }
+
+  for(int j = 0; j < length1; j++) {
+    moveCheck curMove1 = moveChecks1[j];
+    if(curMove1.isAccounted)
+      continue;
+    for(int k = 0; k < length2; k++) {
+      moveCheck curMove2 = moveChecks2[k];
+      if(curMove2.isAccounted)
+        continue;
+      if(movesSame(curMove1.thisMove, curMove2.thisMove)) {
+        moveChecks1[j].isAccounted = true;
+        moveChecks2[k].isAccounted = true;
+      }
+    }
+  }
+
+  bool returner = true;
+
+  std::string historyStr;
+  i = history.head;
+  while(i != NULL) {
+    historyStr += moveToAlgebraic(i->data);
+    historyStr += " ";
+    i = i->next;
+  }
+
+  for(int j = 0; j < length1; j++) {
+    if(!moveChecks1[j].isAccounted) {
+      std::cout << "Extra move from Valley: " << moveToAlgebraic(moveChecks1[j].thisMove) << " Previous moves were: " << historyStr << std::endl;
+      returner = false;
+    }
+  }
+
+  for(int j = 0; j < length2; j++) {
+    if(!moveChecks2[j].isAccounted) {
+      std::cout << "Missing move from Valley: " << moveToAlgebraic(moveChecks2[j].thisMove) << " Previous moves were: " << historyStr << std::endl;
+      returner = false;
+    }
+  }
+
+  return returner;
+}
+
+void compareMoveGeneration(int depth, game Game, linkedMoveList history, int historySize = 0) {
+  linkedMoveList moves = Game.generateSemilegalMoves();
+
+  int length = 0;
+
+  moveNode* i = moves.head;
+  while(i != NULL) {
+    length++;
+    i = i->next;
+  }
+
+  i = moves.head;
+  int j = 0;
+  while(i != NULL) {
+    Game.makeMove(i->data);
+    Game.undoMove();
+    j++;
+    i = i->next;
+  }
+
+  checkMovesSame(history, moves);
+  if(depth != 0) {
+    moveNode* i = moves.head;
+    while(i != NULL) {
+      history.add(i->data);
+      Game.makeMove(i->data);
+      compareMoveGeneration(depth - 1, Game, history, historySize + 1);
+      Game.undoMove();
+      history.remove(historySize);
+      i = i->next;
+    }
+  }
+}
+
+void getStockfishNumbers(int& outLength, moveCheck* moves) {
+  //int length = 0;
+
+  /*std::ifstream outputFile ("stockfishOutput");
+
+
+  std::string line;
+  std::getline(outputFile, line);
+  while (std::getline(outputFile, line))
+  {
+      if(line == "")
+        break;
+
+      length++;
+  }
+  outputFile.close();*/
+
+  //moveCheck moves[length];
+
+  std::ifstream outputFile2 ("stockfishOutput");
+
+  int i = 0;
+  std::string line2;
+  std::getline(outputFile2, line2);
+  while (std::getline(outputFile2, line2))
+  {
+      if(line2 == "")
+        break;
+
+      char cString[16];
+      strcpy(cString, line2.c_str());
+
+      moves[i].thisCount = atoi(&cString[6]);
+      moves[i].thisMove = algebraicToMove(cString);
+      i++;
+  }
+  outputFile2.close();
+  outLength = i;
+}
+
+void CompareMoveGenerationAdvanced(int depth, game Game, linkedMoveList history, int historySize);
+
+void checkMovesSameAdvancedHelper(linkedMoveList history, moveCheck* moveChecks1, int length, int depth, game Game, int historySize = 0) {
+  generateStockfishPerft(history, depth);
+  system("cat stockfishInput | stockfish > stockfishOutput");
+  int length2 = 0;
+  moveCheck moveChecks2 [256];
+  getStockfishNumbers(length2, moveChecks2);
+
+  for(int j = 0; j < length; j++) {
+    moveCheck curMove1 = moveChecks1[j];
+    if(curMove1.isAccounted)
+      continue;
+    for(int k = 0; k < length2; k++) {
+      moveCheck curMove2 = moveChecks2[k];
+      if(curMove2.isAccounted)
+        continue;
+      if(movesSame(curMove1.thisMove, curMove2.thisMove) && curMove1.thisCount == curMove2.thisCount) {
+        moveChecks1[j].isAccounted = true;
+        moveChecks2[k].isAccounted = true;
+      }
+    }
+  }
+
+  for(int j = 0; j < length; j++) {
+    if(!moveChecks1[j].isAccounted) {
+      history.add(moveChecks1[j].thisMove);
+      Game.makeMove(moveChecks1[j].thisMove);
+      CompareMoveGenerationAdvanced(depth - 1, Game, history, historySize + 1);
+      Game.undoMove();
+      history.remove(historySize);
+    }
+  }
+
+  for(int j = 0; j < length2; j++) {
+    if(!moveChecks2[j].isAccounted) {
+      history.add(moveChecks2[j].thisMove);
+      Game.makeMove(moveChecks2[j].thisMove);
+      CompareMoveGenerationAdvanced(depth - 1, Game, history, historySize + 1);
+      Game.undoMove();
+      history.remove(historySize);
+    }
+  }
+}
+
+void CompareMoveGenerationAdvanced(int depth, game Game, linkedMoveList history, int historySize = 0) {
+  linkedMoveList moves = Game.generateLegalMoves();
+  bool same = checkMovesSame(history, moves);
+
+  if(same && depth != 0) {
+    int length = 0;
+    moveNode* i = moves.head;
+    while(i != NULL) {
+      length++;
+      i = i->next;
+    }
+
+    moveCheck moveChecks1[length];
+
+    i = moves.head;
+    int j = 0;
+    while(i != NULL) {
+      Game.makeMove(i->data);
+      moveChecks1[j].thisCount = (int)Perft(depth - 1, Game);
+      moveChecks1[j].thisMove = i->data;
+      Game.undoMove();
+      j++;
+      i = i->next;
+    }
+
+    checkMovesSameAdvancedHelper(history, moveChecks1, length, depth, Game, historySize);
+  }
+}
+
 int main() {
   game Game;
-  /*move d2d3;
-  d2d3.start = 51;
-  d2d3.end = 43;
-  Game.makeMove(d2d3);
-  move a7a6;
-  d2d3.start = 8;
-  d2d3.end = 16;
-  Game.makeMove(a7a6);*/
+  move e2e4;
+  e2e4.start = 52;
+  e2e4.end = 36;
+  //Game.makeMove(e2e4);
 
-  int depth = 3;
-  int number = 0;
+  linkedMoveList test;
+  //test.add(e2e4);
 
-  linkedMoveList moves = Game.generateSemilegalMoves();
-  moveNode* i = moves.head;
+  /*moveNode* i = stockfishMoves.head;
+  while(i != NULL) {
+    std::cout << moveToAlgebraic(i->data) << std::endl;
+    i = i->next;
+  }*/
+
+  /*e7e5;
+  e7e5.start = 12;
+  e7e5.end = 28;
+  Game.makeMove(e7e5);*/
+
+  //Game.boards.printStandardArrayBoard();
+
+  //int depth = 2;
+  //int number = 0;
+
+  //linkedMoveList moves = Game.generateSemilegalMoves();
+  //checkMovesSame(test, moves)
+  game Game1;
+  linkedMoveList history;
+  std::cout << Perft(6,Game1) << std::endl;
+  //CompareMoveGenerationAdvanced(5, Game1, history);
+
+  /*i = moves.head;
   while(i != NULL) {
     Game.makeMove(i->data);
     int subnumber = Perft(depth - 1, Game);
@@ -211,7 +511,7 @@ int main() {
     i = i->next;
   }
 
-  std::cout << std::endl << "Nodes searched: " << number << std::endl;;
+  std::cout << std::endl << "Nodes searched: " << number << std::endl;;*/
 
   return 0;
 }
