@@ -19,7 +19,6 @@ limitations under the License.
 #include <game.h>
 #include <utilities.h>
 
-
 int main() {
   game Game;
 

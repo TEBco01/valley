@@ -19,7 +19,7 @@ limitations under the License.
 #include <bitboard.h>
 #include <moves.h>
 #include <moveGeneration.h>
-#include <iostream> // For debugging only
+//#include <iostream> // For debugging only
 
 /* template for iterating through linkedMoveList
 
