@@ -13,30 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+#pragma once
 
-#include <iostream>
+#include <bitboard.h>
 #include <moves.h>
-#include <game.h>
-#include <utilities.h>
 
-int main() {
-  game Game;
+linkedMoveList possibleMovesW(move lastMove, const bitboards game);
+linkedMoveList possibleMovesB(move lastMove, const bitboards game);
 
-  int depth = 3;
-  int number = 0;
+void applyMove(bitboards* game, move change);
+void unapplyMove(bitboards* game, move change);
 
-  linkedMoveList moves = Game.generateSemilegalMoves();
-  moveNode* i = moves.head;
-  while(i != NULL) {
-    Game.makeMove(i->data);
-    int subnumber = Perft(depth - 1, Game);
-    number += subnumber;
-    std::cout << moveToAlgebraic(i->data) << ": " << subnumber << std::endl;
-    Game.undoMove();
-    i = i->next;
-  }
-
-  std::cout << std::endl << "Nodes searched: " << number << std::endl;;
-
-  return 0;
-}
+bool attackOnKing(move change, const bitboards game);

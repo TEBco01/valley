@@ -13,3 +13,51 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+#include <game.h>
+
+void boardStack::push(bitboards boards) {
+  boardNode* node = new boardNode();
+  node->boards = boards;
+  node->last = tail;
+  tail = node;
+}
+
+bitboards boardStack::pop() {
+ boardNode* newTail = tail->last;
+ bitboards boards = tail->boards;
+ delete tail;
+ tail = newTail;
+ return boards;
+}
+
+void moveStack::push(move a){
+	movePancake *pancake = new movePancake;
+	pancake->data = a;
+	pancake->last = tail;
+	tail = pancake;
+};
+
+move moveStack::pop(){
+	movePancake *newtail = tail->last;
+	move moves = tail->data;
+	delete tail;
+	tail = newtail;
+	return moves;
+};
+
+void moveStack::emptyPop(){
+	movePancake *newtail = tail->last;
+	delete tail;
+	tail = newtail;
+};
+
+move moveStack::peek(){
+  if(tail != NULL)
+	 return tail->data;
+  else
+  {
+    move emptyMove;
+    return emptyMove;
+  }
+};

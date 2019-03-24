@@ -113,11 +113,3 @@ struct moveList {
     delete [] temp;
   }
 };
-
-linkedMoveList possibleMovesW(move lastMove, const bitboards game);
-linkedMoveList possibleMovesB(move lastMove, const bitboards game);
-
-void applyMove(bitboards* game, move change);
-void unapplyMove(bitboards* game, move change);
-
-bool attackOnKing(move change, const bitboards game);

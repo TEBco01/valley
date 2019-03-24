@@ -18,7 +18,8 @@ limitations under the License.
 
 #include <bitboard.h>
 #include <moves.h>
-#include <iostream> // For debugging only
+#include <moveGeneration.h>
+//#include <iostream> // For debugging only
 
 /* template for iterating through linkedMoveList
 
@@ -43,21 +44,6 @@ public:
   bitboards pop();
 };
 
-void boardStack::push(bitboards boards) {
-  boardNode* node = new boardNode();
-  node->boards = boards;
-  node->last = tail;
-  tail = node;
-}
-
-bitboards boardStack::pop() {
- boardNode* newTail = tail->last;
- bitboards boards = tail->boards;
- delete tail;
- tail = newTail;
- return boards;
-}
-
 struct movePancake {
 	move data;
 	movePancake *last;
@@ -67,41 +53,10 @@ class moveStack {
 	public:
 		void push(move a);
 		move pop(); // TODO: Would an empty pop be more efficient? We never need to peek while we pop
-   		void emptyPop();
-    		move peek();
+   	void emptyPop();
+    move peek();
 	private:
 		movePancake *tail = NULL;
-};
-
-void moveStack::push(move a){
-	movePancake *pancake = new movePancake;
-	pancake->data = a;
-	pancake->last = tail;
-	tail = pancake;
-};
-
-move moveStack::pop(){
-	movePancake *newtail = tail->last;
-	move moves = tail->data;
-	delete tail;
-	tail = newtail;
-	return moves;
-};
-
-void moveStack::emptyPop(){
-	movePancake *newtail = tail->last;
-	delete tail;
-	tail = newtail;
-};
-
-move moveStack::peek(){
-  if(tail != NULL)
-	 return tail->data;
-  else
-  {
-    move emptyMove;
-    return emptyMove;
-  }
 };
 
 struct game {
