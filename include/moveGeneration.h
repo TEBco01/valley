@@ -15,17 +15,13 @@ limitations under the License.
 */
 #pragma once
 
-#include <iostream>
-#include <moves.h>
 #include <bitboard.h>
-#include <game.h>
 #include <moves.h>
-#include <moveGeneration.h>
 
-U64 Perft(int depth, game Game);
-std::string moveToAlgebraic(const move change);
-move algebraicToMove(const char* moveString);
-void generateConstBitboard();
-int rangeRandomAlg2 (int min, int max);
-void printArray(char array[64]);
-void printMovePossibilities(const bitboards originalBoard, const moveList possibleMoves);
+linkedMoveList possibleMovesW(move lastMove, const bitboards game);
+linkedMoveList possibleMovesB(move lastMove, const bitboards game);
+
+void applyMove(bitboards* game, move change);
+void unapplyMove(bitboards* game, move change);
+
+bool attackOnKing(move change, const bitboards game);
