@@ -14,9 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
-#define generateBoards // Generates the setup from a constant array instead of using constant integer values
-
 #include <bitboard.h>
 #include <iostream>
 
