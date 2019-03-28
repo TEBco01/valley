@@ -114,6 +114,98 @@ move algebraicToMove(const char* moveString) {
   return returnMove;
 }
 
+bitboards FENboardToBitboards(const char* board, const int length) {
+  char array[64];
+  int j = 0;
+  for(int i = 0; i < length; i++) {
+    if(board[i] == '/')
+      continue;
+    if(board[i] - '1' >= 0 && board[i] - '8' <= 0) {
+      int blanks = board[i] - '0';
+      for(int k = j; k < j + blanks; k++)
+      {
+        array[k] = ' ';
+      }
+      j += blanks;
+    }
+    else {
+      array[j] = board[i];
+      j++;
+    }
+  }
+
+  bitboards returnBoards;
+  returnBoards.standardArrayToBitboards(array);
+  return returnBoards;
+}
+
+game FENtoGame(const char* FEN) {
+  bitboards gameBoards;
+  int sectionLength = 0;
+  for(int i = 0; i < 64 + 7; i++) {
+    if(FEN[i] == ' ')
+      break;
+    sectionLength++;
+  }
+  gameBoards = FENboardToBitboards(FEN, sectionLength);
+  game returnGame(gameBoards);
+  char sideToMove = FEN[sectionLength + 1];
+  if(sideToMove == 'b') {
+    returnGame.blacksTurn = true;
+  }
+  int index = sectionLength + 3;
+  sectionLength = 0;
+
+  returnGame.boards.castleInfo.whiteACan = false;
+  returnGame.boards.castleInfo.whiteHCan = false;
+  returnGame.boards.castleInfo.blackACan = false;
+  returnGame.boards.castleInfo.blackHCan = false;
+
+  if(index == '-') {
+    sectionLength = 1;
+  } else {
+    for(int i = index; i < index + 6; i++) {
+      if(FEN[i] == ' ')
+        break;
+      sectionLength++;
+    }
+    for(int i = index; i < index + sectionLength; i++) {
+      if(FEN[i] == 'Q')
+        returnGame.boards.castleInfo.whiteACan = true;
+    }
+    for(int i = index; i < index + sectionLength; i++) {
+      if(FEN[i] == 'K')
+        returnGame.boards.castleInfo.whiteHCan = true;
+    }
+    for(int i = index; i < index + sectionLength; i++) {
+      if(FEN[i] == 'q')
+        returnGame.boards.castleInfo.blackACan = true;
+    }
+    for(int i = index; i < index + sectionLength; i++) {
+      if(FEN[i] == 'k')
+        returnGame.boards.castleInfo.blackHCan = true;
+    }
+  }
+  index += sectionLength + 1;
+  if(FEN[index] != '-') {
+    move enPassant;
+    enPassant.end = algebraicToSquare(&FEN[index]);
+    if(enPassant.end < 32) {
+      enPassant.start = enPassant.end - 16;
+      enPassant.special = 11;
+    } else {
+      enPassant.start = enPassant.end + 16;
+      enPassant.special = 10;
+    }
+    returnGame.history.push(enPassant);
+    index += 3;
+  } else {
+    index += 2;
+  }
+
+  return returnGame;
+}
+
 // A way to manually generate a constant bitboard
 void generateConstBitboard() {
   std::cout << std::endl;
