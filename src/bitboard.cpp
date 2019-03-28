@@ -17,6 +17,21 @@ limitations under the License.
 #include <bitboard.h>
 #include <iostream>
 
+void bitboards::standardArrayToBitboards(const char array[64]) {
+  WP = arrayToBitboard(array, 'P');
+  WN = arrayToBitboard(array, 'N');
+  WB = arrayToBitboard(array, 'B');
+  WR = arrayToBitboard(array, 'R');
+  WQ = arrayToBitboard(array, 'Q');
+  WK = arrayToBitboard(array, 'K');
+  BP = arrayToBitboard(array, 'p');
+  BN = arrayToBitboard(array, 'n');
+  BB = arrayToBitboard(array, 'b');
+  BR = arrayToBitboard(array, 'r');
+  BQ = arrayToBitboard(array, 'q');
+  BK = arrayToBitboard(array, 'k');
+}
+
 void bitboards::initStandardBoard() {
   const char board[64] = {
     'r','n','b','q','k','b','n','r',
@@ -29,18 +44,7 @@ void bitboards::initStandardBoard() {
     'R','N','B','Q','K','B','N','R'
   };
 
-  WP = arrayToBitboard(board, 'P');
-  WN = arrayToBitboard(board, 'N');
-  WB = arrayToBitboard(board, 'B');
-  WR = arrayToBitboard(board, 'R');
-  WQ = arrayToBitboard(board, 'Q');
-  WK = arrayToBitboard(board, 'K');
-  BP = arrayToBitboard(board, 'p');
-  BN = arrayToBitboard(board, 'n');
-  BB = arrayToBitboard(board, 'b');
-  BR = arrayToBitboard(board, 'r');
-  BQ = arrayToBitboard(board, 'q');
-  BK = arrayToBitboard(board, 'k');
+  standardArrayToBitboards(board);
 }
 
 U64 bitboards::arrayToBitboard(const char array[64], char character) {

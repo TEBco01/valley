@@ -29,6 +29,7 @@ struct bitboards {
   castleBools castleInfo; // This isn't really part of the bitboards, but makes the game object cleaner
 
 public:
+  void standardArrayToBitboards(const char array[64]); // Takes a standard array and fills the bitboards with it
   void bitboardToArray(const U64 bitboard, char array[64], char character);
   U64 arrayToBitboard(const char array[64], char character);
   void initStandardBoard(); // Fills the bitboards with the setup for standard chess

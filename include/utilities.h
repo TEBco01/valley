@@ -25,6 +25,7 @@ limitations under the License.
 U64 Perft(int depth, game Game);
 std::string moveToAlgebraic(const move change);
 move algebraicToMove(const char* moveString);
+game FENtoGame(const char* FEN);
 void generateConstBitboard();
 int rangeRandomAlg2 (int min, int max);
 void printArray(char array[64]);
