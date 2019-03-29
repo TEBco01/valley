@@ -24,7 +24,7 @@ limitations under the License.
 #include <fstream>
 #include <cstring>
 
-void generateStockfishPerft(linkedMoveList history, int depth) {
+void generateStockfishPerft(linkedMoveList history, int depth, const char* FEN) {
   std::ofstream inputFile ("stockfishInput");
   std::string moves;
 
@@ -35,7 +35,14 @@ void generateStockfishPerft(linkedMoveList history, int depth) {
     i = i->next;
   }
 
-  inputFile << "position startpos moves" << moves << std::endl;
+  if(FEN[0] != 0)
+  {
+    inputFile << "position fen " << FEN;
+  } else
+  {
+    inputFile << "position startpos";
+  }
+  inputFile << " moves" << moves << std::endl;
   inputFile << "go perft " << depth << std::endl;
   inputFile.close();
 }
@@ -72,8 +79,8 @@ struct moveCheck {
   bool isAccounted = false;
 };
 
-bool checkMovesSame(linkedMoveList history, linkedMoveList ourMoves) {
-  generateStockfishPerft(history, 1);
+bool checkMovesSame(linkedMoveList history, linkedMoveList ourMoves, const char* FEN = "") {
+  generateStockfishPerft(history, 1, FEN);
   system("cat stockfishInput | stockfish > stockfishOutput");
   linkedMoveList stockfishMoves = getStockfishMoves();
   //stockfishMoves.remove(0);
@@ -110,6 +117,20 @@ bool checkMovesSame(linkedMoveList history, linkedMoveList ourMoves) {
     j++;
     i = i->next;
   }
+
+  /*byte sum1 = 0;
+  for(int j = 0; j < length1; j++) {
+    sum1 ^= moveChecks1[j].thisMove.start;
+    sum1 ^= moveChecks1[j].thisMove.end;
+  }
+
+  byte sum2 = 0;
+  for(int j = 0; j < length2; j++) {
+    sum2 ^= moveChecks2[j].thisMove.start;
+    sum2 ^= moveChecks2[j].thisMove.end;
+  }
+  if(sum1 != sum2) // Checksum shortcut
+    return false;*/
 
   for(int j = 0; j < length1; j++) {
     moveCheck curMove1 = moveChecks1[j];
@@ -227,10 +248,10 @@ void getStockfishNumbers(int& outLength, moveCheck* moves) {
   outLength = i;
 }
 
-void CompareMoveGenerationAdvanced(int depth, game Game, linkedMoveList history, int historySize);
+void CompareMoveGenerationAdvanced(int depth, game Game, linkedMoveList history, int historySize, const char* FEN = "");
 
-void checkMovesSameAdvancedHelper(linkedMoveList history, moveCheck* moveChecks1, int length, int depth, game Game, int historySize = 0) {
-  generateStockfishPerft(history, depth);
+void checkMovesSameAdvancedHelper(linkedMoveList history, moveCheck* moveChecks1, int length, int depth, game Game, int historySize = 0, const char* FEN = "") {
+  generateStockfishPerft(history, depth, FEN);
   system("cat stockfishInput | stockfish > stockfishOutput");
   int length2 = 0;
   moveCheck moveChecks2 [256];
@@ -255,7 +276,7 @@ void checkMovesSameAdvancedHelper(linkedMoveList history, moveCheck* moveChecks1
     if(!moveChecks1[j].isAccounted) {
       history.add(moveChecks1[j].thisMove);
       Game.makeMove(moveChecks1[j].thisMove);
-      CompareMoveGenerationAdvanced(depth - 1, Game, history, historySize + 1);
+      CompareMoveGenerationAdvanced(depth - 1, Game, history, historySize + 1, FEN);
       Game.undoMove();
       history.remove(historySize);
     }
@@ -265,16 +286,16 @@ void checkMovesSameAdvancedHelper(linkedMoveList history, moveCheck* moveChecks1
     if(!moveChecks2[j].isAccounted) {
       history.add(moveChecks2[j].thisMove);
       Game.makeMove(moveChecks2[j].thisMove);
-      CompareMoveGenerationAdvanced(depth - 1, Game, history, historySize + 1);
+      CompareMoveGenerationAdvanced(depth - 1, Game, history, historySize + 1, FEN);
       Game.undoMove();
       history.remove(historySize);
     }
   }
 }
 
-void CompareMoveGenerationAdvanced(int depth, game Game, linkedMoveList history, int historySize = 0) {
+void CompareMoveGenerationAdvanced(int depth, game Game, linkedMoveList history, int historySize = 0, const char* FEN) {
   linkedMoveList moves = Game.generateLegalMoves();
-  bool same = checkMovesSame(history, moves);
+  bool same = checkMovesSame(history, moves, FEN);
 
   if(same && depth != 0) {
     int length = 0;
@@ -297,54 +318,23 @@ void CompareMoveGenerationAdvanced(int depth, game Game, linkedMoveList history,
       i = i->next;
     }
 
-    checkMovesSameAdvancedHelper(history, moveChecks1, length, depth, Game, historySize);
+    checkMovesSameAdvancedHelper(history, moveChecks1, length, depth, Game, historySize, FEN);
   }
 }
 
 int main() {
-  game Game;
-  move e2e4;
-  e2e4.start = 52;
-  e2e4.end = 36;
-  //Game.makeMove(e2e4);
+  char FEN[] = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
+  game Game = FENtoGame(FEN);
+  linkedMoveList history;
+  CompareMoveGenerationAdvanced(2, Game, history, 0, FEN);
+  std::cout << Perft(2, Game) << std::endl;
+  /*linkedMoveList moves = Game.generateLegalMoves();
 
-  linkedMoveList test;
-  //test.add(e2e4);
-
-  /*moveNode* i = stockfishMoves.head;
+  moveNode* i = moves.head;
   while(i != NULL) {
     std::cout << moveToAlgebraic(i->data) << std::endl;
     i = i->next;
   }*/
-
-  /*e7e5;
-  e7e5.start = 12;
-  e7e5.end = 28;
-  Game.makeMove(e7e5);*/
-
-  //Game.boards.printStandardArrayBoard();
-
-  //int depth = 2;
-  //int number = 0;
-
-  //linkedMoveList moves = Game.generateSemilegalMoves();
-  //checkMovesSame(test, moves)
-  game Game1;
-  linkedMoveList history;
-  std::cout << Perft(6,Game1) << std::endl;
-  //CompareMoveGenerationAdvanced(5, Game1, history);
-
-  /*i = moves.head;
-  while(i != NULL) {
-    Game.makeMove(i->data);
-    int subnumber = Perft(depth - 1, Game);
-    number += subnumber;
-    std::cout << moveToAlgebraic(i->data) << ": " << subnumber << std::endl;
-    Game.undoMove();
-    i = i->next;
-  }
-
-  std::cout << std::endl << "Nodes searched: " << number << std::endl;;*/
 
   return 0;
 }
