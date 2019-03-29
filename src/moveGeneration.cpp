@@ -282,20 +282,20 @@ linkedMoveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, co
 	if(black) {
 		if(castleInfo.blackACan) {
 			if(!(8070450532247928832ULL & (FriendlyPieces | EnemyPieces) )) // Checks for pieces between the rook and king
-				possibleMoves.create(0, 3, 1);
+				possibleMoves.create(4, 2, 1);
 		}
 		if(castleInfo.blackHCan) {
 			if(!(432345564227567616ULL & (FriendlyPieces | EnemyPieces) ))
-				possibleMoves.create(7, 5, 1);
+				possibleMoves.create(4, 6, 1);
 		}
 	} else {
 		if(castleInfo.whiteACan) {
 			if(!(112ULL & (FriendlyPieces | EnemyPieces) ))
-				possibleMoves.create(56, 59, 1);
+				possibleMoves.create(60, 58, 1);
 		}
 		if(castleInfo.whiteHCan) {
 			if(!(6ULL & (FriendlyPieces | EnemyPieces) ))
-				possibleMoves.create(63, 61, 1);
+				possibleMoves.create(60, 62, 1);
 		}
 	}
 
@@ -450,29 +450,35 @@ void applyMove(bitboards* game, move change) {
 	}
 
 	if(change.start == 63) {
-		game->castleInfo.blackHCan = false;
-	} else if(change.start == 56) {
-		game->castleInfo.blackACan = false;
-	} else if(change.start == 0) {
-		game->castleInfo.whiteACan = false;
-	} else if(change.start == 7)
 		game->castleInfo.whiteHCan = false;
+	} else if(change.start == 56) {
+		game->castleInfo.whiteACan = false;
+	} else if(change.start == 0) {
+		game->castleInfo.blackACan = false;
+	} else if(change.start == 7)
+		game->castleInfo.blackHCan = false;
 
   switch(change.special) { // Check moves.h for the list of special moves. TODO: use an enum instead of a manual code
 		case 1:
 			if(change.start < 8) {
-				setAllToZero(game, 576460752303423488ULL);
-				if(change.end == 3) {
-					game->BK |= 2305843009213693952ULL;
+        //game->castleInfo.blackACan = false;
+        //game->castleInfo.blackHCan = false;
+				if(change.end == 2) {
+          setAllToZero(game, 1ULL << (63ULL - (U64)0));
+					game->BR |= 1ULL << (63ULL - (U64)3);
 				} else {
-					game->BK |= 144115188075855872ULL;
+          setAllToZero(game, 1ULL << (63ULL - (U64)7));
+					game->BR |= 1ULL << (63ULL - (U64)5);
 				}
 			} else {
-				setAllToZero(game, 8ULL);
-				if(change.end == 59) {
-					game->WK |= 32ULL;
+        //game->castleInfo.whiteACan = false;
+        //game->castleInfo.whiteHCan = false;
+				if(change.end == 58) {
+          setAllToZero(game, 1ULL << (63ULL - (U64)56));
+					game->WR |= 1ULL << (63ULL - (U64)59);
 				} else {
-					game->WK |= 2ULL;
+          setAllToZero(game, 1ULL << (63ULL - (U64)63));
+					game->WR |= 1ULL << (63ULL - (U64)61);
 				}
 			}
 			break;
