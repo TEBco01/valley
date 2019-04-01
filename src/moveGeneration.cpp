@@ -124,10 +124,10 @@ linkedMoveList possibleMovesWPawns(move lastMove, const bitboards game, const ex
 			if(pieceAtSquare(game.BP, lastMove.end) && 8 <= lastMove.start && lastMove.start <= 15) { // Was it an enemy pawn? Did this pawn move two?
 				if(lastMove.end >= 25) // Was it in bounds on the left?
 					if(pieceAtSquare(game.WP, lastMove.end - 1)) // Is there a friendly piece on the left side?
-						possibleMoves.create(lastMove.end - 1, lastMove.end - 8);
+						possibleMoves.create(lastMove.end - 1, lastMove.end - 8, 10);
 				if(lastMove.end <= 30) // Was it in bounds on the right?
 					if(pieceAtSquare(game.WP, lastMove.end + 1)) // Is there a friendly piece on the right side?
-						possibleMoves.create(lastMove.end + 1, lastMove.end - 8);
+						possibleMoves.create(lastMove.end + 1, lastMove.end - 8, 10);
 			}
 		}
 	}
@@ -204,10 +204,10 @@ linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const ex
 			if(pieceAtSquare(game.WP, lastMove.end)  && 48 <= lastMove.start && lastMove.start <= 55) { // Was it an enemy pawn? Did this pawn move two?
 				if(lastMove.end >= 33) // Was it in bounds on the left?
 					if(pieceAtSquare(game.BP, lastMove.end - 1)) // Is there a friendly piece on the left side?
-						possibleMoves.create(lastMove.end - 1, lastMove.end + 8, 10);
+						possibleMoves.create(lastMove.end - 1, lastMove.end + 8, 11);
 				if(lastMove.end <= 38) // Was it in bounds on the right?
 					if(pieceAtSquare(game.BP, lastMove.end + 1)) // Is there a friendly piece on the right side?
-						possibleMoves.create(lastMove.end + 1, lastMove.end + 8, 10);
+						possibleMoves.create(lastMove.end + 1, lastMove.end + 8, 11);
 			}
 		}
 	}
