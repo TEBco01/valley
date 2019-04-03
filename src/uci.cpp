@@ -61,11 +61,8 @@ void processUCI() {
       state.inGame = true;
     }
     else if(token == "position") {
-      if(!state.inGame)
-      {
-        state.Game = game();
-        state.inGame = true;
-      }
+      state.Game = game();
+      state.inGame = true;
       std::string input2 = removeFirstToken(input);
       std::string token2 = getFirstToken(input2);
       if(token2 == "startpos") {
