@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #include <iostream>
+#include <string>
 #include <game.h>
 #include <utilities.h>
 
