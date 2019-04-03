@@ -89,10 +89,7 @@ struct game {
 
     moveNode* i = moves.head;
     while(i != NULL) {
-      makeMove(i->data);
-      bool attackOnKing = missingKing(boards);
-      undoMove();
-      if(attackOnKing)
+      if(attackOnKing(i->data, boards))
       {
         moves.deleteList();
         return false;
