@@ -206,6 +206,45 @@ game FENtoGame(const char* FEN) {
   return returnGame;
 }
 
+std::string getFirstToken(std::string input) {
+  std::string returnString;
+  for(int i = 0; input[i] != ' ' && input[i] != '\0' && input[i] != '\t'; i++) {
+    returnString += input[i];
+  }
+  return returnString;
+}
+
+std::string removeFirstToken(std::string input) {
+  std::string returnString;
+  int i;
+  for(i = 0; input[i] != ' ' && input[i] != '\0' && input[i] != '\t'; i++) {}
+  for(; (input[i] == ' ' || input[i] == '\t') && input[i] != '\0'; i++) {}
+  for(; input[i] != '\0'; i++) {
+    returnString += input[i];
+  }
+  return returnString;
+}
+
+linkedMoveList parseMoveString(std::string movesList) {
+  linkedMoveList returnList;
+  std::string editList = movesList;
+  while(editList != "") {
+    returnList.add(algebraicToMove(getFirstToken(editList).c_str()));
+    editList = removeFirstToken(editList);
+  }
+  return returnList;
+}
+
+void parseMovesIntoGame(game& Game, std::string movesList) {
+  linkedMoveList moves = parseMoveString(movesList);
+
+  moveNode* i = moves.head;
+  while(i != NULL) {
+    Game.makeMove(i->data);
+    i = i->next;
+  }
+}
+
 // A way to manually generate a constant bitboard
 void generateConstBitboard() {
   std::cout << std::endl;

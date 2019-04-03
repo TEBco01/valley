@@ -13,16 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#pragma once
 
-#include <bitboard.h>
-#include <moves.h>
+#include <iostream>
+#include <string>
+#include <game.h>
+#include <utilities.h>
 
-linkedMoveList possibleMovesW(move lastMove, const bitboards game);
-linkedMoveList possibleMovesB(move lastMove, const bitboards game);
-
-void applyMove(bitboards* game, move change);
-void unapplyMove(bitboards* game, move change);
-
-bool attackOnKing(move change, const bitboards game);
-bool missingKing(const bitboards game);
+void processUCI();
