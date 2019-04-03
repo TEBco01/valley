@@ -593,3 +593,10 @@ bool attackOnKing(move change, const bitboards game) {
   }
   return false;
 }
+
+bool missingKing(const bitboards game) {
+  if(game.WK && game.BK) {
+    return false;
+  }
+  return true;
+}
