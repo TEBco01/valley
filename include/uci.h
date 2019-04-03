@@ -14,9 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <uci.h>
+#include <iostream>
+#include <game.h>
+#include <utilities.h>
 
-int main() {
-  processUCI();
-  return 0;
-}
+void processUCI();
