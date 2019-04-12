@@ -16,10 +16,9 @@ limitations under the License.
 
 #pragma once
 
-#include <iostream>
-#include <string>
 #include <game.h>
-#include <utilities.h>
-#include <evaluator.h>
+#include <moves.h>
+#include <iostream> // For debugging
+#include <utilities.h> // Also for debugging
 
-void processUCI();
+void evaluate(game Game, move& bestMove); // Add mutexes if threaded
