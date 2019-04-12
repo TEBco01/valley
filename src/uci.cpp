@@ -98,7 +98,11 @@ void processUCI() {
         state.inGame = true;
       }
 
-      linkedMoveList moves = state.Game.generateLegalMoves();
+      move bestMove;
+      evaluate(state.Game, bestMove);
+      tellGUI("bestmove " + moveToAlgebraic(bestMove));
+
+      /*linkedMoveList moves = state.Game.generateLegalMoves();
       int length = 0;
       moveNode* i = moves.head;
       while(i != NULL) {
@@ -115,6 +119,7 @@ void processUCI() {
         j++;
         i = i->next;
       }
+      */
     }
     else if(token == "stop") {
 
