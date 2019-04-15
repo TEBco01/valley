@@ -30,6 +30,9 @@ C64 File_A = 9259542123273814144ULL;
 C64 File_B = 4629771061636907072ULL;
 C64 File_G = 144680345676153346ULL;
 C64 File_H = 72340172838076673ULL;
+enum special : byte {
+	castle = 1, promotionWQ = 2, promotionWR = 3, promotionWK = 4, promotionWB = 5, promotionBQ = 6, promotionBR = 7, promotionBK = 8, promotionBB = 9
+};
 
 struct move {
   byte start = 0, end = 0, special = 0; // For special: 1 is castle, 2 is pawn into white Queen, 3 is pawn into white Rook, 4 is pawn into white Knight, 5 is pawn into white Bishop; black pawns are the same except + 4; 10 is white en passant; 11 is black en passant
