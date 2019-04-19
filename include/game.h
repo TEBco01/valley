@@ -19,6 +19,7 @@ limitations under the License.
 #include <bitboard.h>
 #include <moves.h>
 #include <moveGeneration.h>
+#include <tt.h>
 
 /* template for iterating through linkedMoveList
 
@@ -66,11 +67,17 @@ struct game {
 
   bool blacksTurn = 0;
 
+  TT* tt = new TT();
+  U64 hash;
+  void generateHash();
+
   game() {
     boards.initStandardBoard();
+    generateHash();
   }
   game(bitboards newBoards) {
     boards = newBoards;
+    generateHash();
   }
   void makeMove(move moveMade) {
     boardHistory.push(boards);
