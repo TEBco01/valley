@@ -16,10 +16,15 @@ limitations under the License.
 
 #include <moveGeneration.h>
 
+
+inline U64 positionMask(byte square) {
+  return 1ULL << (63ULL - (U64)square);
+}
+
 linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
   linkedMoveList moves;
   for (int i=0; i < 64; i++) {
-    if( toBoard & 1ULL << (63ULL - (U64)i) ) {
+    if( toBoard & positionMask(i) ) {
       moves.create(0, i);
     }
   }
@@ -48,7 +53,7 @@ void constantShiftGenerator(U64 board, int shift, int special, linkedMoveList& p
 }
 
 bool pieceAtSquare(const U64 board, const int square) {
-  if( board & 1ULL << (63ULL - (U64)square) ) {
+  if( board & positionMask(square) ) {
     return true;
   } else {
     return false;
@@ -485,8 +490,8 @@ bool checkBoardMove(U64& board, U64 startMask, U64 endMask) { // TODO: possible 
 
 // Note: lots of room for optimization
 void applyMove(bitboards* game, move change) {
-  U64 startMask = 1ULL << (63ULL - (U64)change.start);
-  U64 endMask = 1ULL << (63ULL - (U64)change.end);
+  U64 startMask = positionMask(change.start);
+  U64 endMask = positionMask(change.end);
 
   setAllToZero(game, endMask);
 
@@ -524,21 +529,21 @@ void applyMove(bitboards* game, move change) {
         //game->castleInfo.blackACan = false;
         //game->castleInfo.blackHCan = false;
 				if(change.end == 2) {
-          setAllToZero(game, 1ULL << (63ULL - (U64)0));
-					game->BR |= 1ULL << (63ULL - (U64)3);
+          setAllToZero(game, positionMask(0));
+					game->BR |= positionMask(3);
 				} else {
-          setAllToZero(game, 1ULL << (63ULL - (U64)7));
-					game->BR |= 1ULL << (63ULL - (U64)5);
+          setAllToZero(game, positionMask(7));
+					game->BR |= positionMask(5);
 				}
 			} else {
         //game->castleInfo.whiteACan = false;
         //game->castleInfo.whiteHCan = false;
 				if(change.end == 58) {
-          setAllToZero(game, 1ULL << (63ULL - (U64)56));
-					game->WR |= 1ULL << (63ULL - (U64)59);
+          setAllToZero(game, positionMask(56));
+					game->WR |= positionMask(59);
 				} else {
-          setAllToZero(game, 1ULL << (63ULL - (U64)63));
-					game->WR |= 1ULL << (63ULL - (U64)61);
+          setAllToZero(game, positionMask(63));
+					game->WR |= positionMask(61);
 				}
 			}
 			break;
@@ -586,7 +591,7 @@ void applyMove(bitboards* game, move change) {
 }
 
 bool attackOnKing(move change, const bitboards game) {
-  U64 endMask = 1ULL << (63ULL - (U64)change.end);
+  U64 endMask = positionMask(change.end);
 
   if(game.WK & endMask || game.BK & endMask) {
     return true;
