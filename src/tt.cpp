@@ -94,7 +94,7 @@ void TT::init(const U64 seed) {
   hashBlackA = state;
   state = randomValue(state);
   hashBlackH = state;
-  for(int i = 0; i < 64; i++)
+  for(int i = 0; i < 8; i++)
   {
     state = randomValue(state);
     hashEnPassant[i] = state;
