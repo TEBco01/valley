@@ -45,5 +45,4 @@ struct TT {
   }
 
   void init(U64 seed);
-  //U64 getHash();
 };
