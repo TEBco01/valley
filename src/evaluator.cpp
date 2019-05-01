@@ -88,7 +88,7 @@ move minPositionStrengthFast(linkedMoveList moves, game Game) {
   return bestMove;
 }
 
-double negaMax(game Game, int depth) {
+double negaMax(game Game, int depth, TT& tt) {
     double side;
     if(Game.blacksTurn) {
       side = 1.0;
@@ -120,13 +120,13 @@ double negaMax(game Game, int depth) {
   }
 }*/
 
-void evaluate(game Game, move& bestMove) {
+void evaluate(game Game, move& bestMove, TT& tt) {
   double bestScore = -1e99;
 
   linkedMoveList moves = Game.generateLegalMoves();
   for(moveNode* i = moves.head; i != NULL; i = i->next) {
     Game.makeMove(i->data);
-    double score = negaMax(Game, 3);
+    double score = negaMax(Game, 3, TT& tt);
     if(score > bestScore) {
       bestScore = score;
       bestMove = i->data;

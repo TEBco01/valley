@@ -18,7 +18,8 @@ limitations under the License.
 
 #include <game.h>
 #include <moves.h>
+#include <tt.h>
 #include <iostream> // For debugging
 #include <utilities.h> // Also for debugging
 
-void evaluate(game Game, move& bestMove); // Add mutexes if threaded
+void evaluate(game Game, move& bestMove, TT& tt); // Add mutexes if threaded
