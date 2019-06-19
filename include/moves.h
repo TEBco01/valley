@@ -31,7 +31,7 @@ C64 File_B = 4629771061636907072ULL;
 C64 File_G = 144680345676153346ULL;
 C64 File_H = 72340172838076673ULL;
 enum special : byte {
-	castle = 1, promotionWQ = 2, promotionWR = 3, promotionWK = 4, promotionWB = 5, promotionBQ = 6, promotionBR = 7, promotionBK = 8, promotionBB = 9
+	castle = 1, promotionWQ = 2, promotionWR = 3, promotionWK = 4, promotionWB = 5, promotionBQ = 6, promotionBR = 7, promotionBK = 8, promotionBB = 9, enPassantW = 10, enPassantB = 11
 };
 
 struct move {

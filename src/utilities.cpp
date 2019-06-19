@@ -96,7 +96,24 @@ std::string squareToAlgebraic(const byte square) {
 }
 
 std::string moveToAlgebraic(const move change) {
-  return squareToAlgebraic(change.start) + squareToAlgebraic(change.end);
+  std::string extra = "";
+  if(change.special >= 2 && change.special <= 9) {
+    switch((change.special - 1) % 4) {
+      case 1:
+        extra = "q";
+        break;
+      case 2:
+        extra = "r";
+        break;
+      case 3:
+        extra = "k";
+        break;
+      default:
+        extra = "b";
+        break;
+    }
+  }
+  return squareToAlgebraic(change.start) + squareToAlgebraic(change.end) + extra;
 }
 
 // Does not check for bounds. Liable for error TODO: Fix
