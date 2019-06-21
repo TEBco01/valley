@@ -88,19 +88,24 @@ move minPositionStrengthFast(linkedMoveList moves, game Game) {
   return bestMove;
 }
 
-double negaMax(game Game, int depth) {
-    double side;
-    if(Game.blacksTurn) {
-      side = 1.0;
-    } else {
-      side = -1.0;
+flexScore negaMax(game Game, int depth) {
+    if(depth == 0) {
+      double side;
+      if(Game.blacksTurn) {
+        side = -1.0;
+      } else {
+        side = 1.0;
+      }
+
+      flexScore returner;
+      returner.score = side*positionStrengthFast(Game);
+      return returner;
     }
-    if(depth == 0) return side*positionStrengthFast(Game);
-    double max = -1e99;
+    flexScore max;
     linkedMoveList moves = Game.generateLegalMoves();
     for(moveNode* i = moves.head; i != NULL; i = i->next) {
       Game.makeMove(i->data);
-      double score = -negaMax(Game, depth - 1);
+      flexScore score = -negaMax(Game, depth - 1);
       Game.undoMove();
       if(score > max) {
         max = score;
@@ -121,17 +126,18 @@ double negaMax(game Game, int depth) {
 }*/
 
 void evaluate(game Game, move& bestMove) {
-  double bestScore = -1e99;
+  flexScore bestScore;
 
   linkedMoveList moves = Game.generateLegalMoves();
   for(moveNode* i = moves.head; i != NULL; i = i->next) {
     Game.makeMove(i->data);
-    double score = negaMax(Game, 3);
+    flexScore score = negaMax(Game, 3);
     if(score > bestScore) {
       bestScore = score;
       bestMove = i->data;
       //std::cout << moveToAlgebraic(bestMove) << std::endl;
     }
     Game.undoMove();
+    //std::cout << moveToAlgebraic(i->data) << " - " << score.score << std::endl;
   }
 }
