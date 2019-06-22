@@ -22,11 +22,12 @@ limitations under the License.
 #include <utilities.h> // Also for debugging
 
 struct flexScore {
-  double score = -1e99; // The current evaulation of this position
+  double score = 0; // The current evaulation of this position
   int count; // The half turns left until a mate/draw
   bool draw = false; // Is the count for a draw? If not it is for a mate
   bool tethered = false; // Should we use the mate/draw counter? If not we would be floating (using score)
   bool favorable; // If tethered, would the result be a win for us?
+  bool extreme = false; // Either best or worse possible move
 
   void operator=(const flexScore& b) {
     score = b.score;
@@ -34,12 +35,20 @@ struct flexScore {
     draw = b.draw;
     tethered = b.tethered;
     favorable = b.favorable;
+    extreme = b.extreme;
   }
 
   flexScore operator-() {
     flexScore returner = *this;
     returner.favorable = !returner.favorable;
     returner.count--;
+    return returner;
+  }
+
+  flexScore operator--() {
+    flexScore returner = *this;
+    returner.favorable = !returner.favorable;
+    returner.count++;
     return returner;
   }
 
@@ -55,6 +64,18 @@ if(b.tethered) {
 }
 */
   bool operator>(const flexScore& b) { // There's probably a more readable way to do this...
+    if(this->extreme) {
+      if(b.extreme) {
+        if(b.favorable) {
+          return false;
+        }
+        return favorable;
+      }
+      return favorable;
+    }
+    if(b.extreme) {
+      return !b.favorable;
+    }
     if(this->tethered) {
       if(this->draw) {
         if(b.tethered) {
@@ -98,6 +119,30 @@ if(b.tethered) {
         return this->score > b.score;
       }
     }
+    return false;
+  }
+
+  bool operator==(const flexScore& b) {
+    if(this->extreme == b.extreme && this->tethered == b.tethered && this->draw == b.draw) {
+      if(this->extreme)
+        return this->favorable == b.favorable;
+      if(this->tethered) {
+        if(this->draw) {
+          return this->count == b.count;
+        }
+        return this->count == b.count && this->favorable == b.favorable;
+      }
+
+      return this->score == b.score;
+    }
+    return false;
+  }
+
+  bool operator>=(const flexScore& b) {
+    if(*this > b)
+      return true;
+    if(*this == b)
+      return true;
     return false;
   }
 };

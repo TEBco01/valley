@@ -88,7 +88,7 @@ move minPositionStrengthFast(linkedMoveList moves, game Game) {
   return bestMove;
 }
 
-flexScore negaMax(game Game, int depth) {
+flexScore negaMax(game Game, int depth, flexScore alpha, flexScore beta) {
     if(depth == 0) {
       double side;
       if(Game.blacksTurn) {
@@ -101,17 +101,18 @@ flexScore negaMax(game Game, int depth) {
       returner.score = side*positionStrengthFast(Game);
       return returner;
     }
-    flexScore max;
     linkedMoveList moves = Game.generateLegalMoves();
     for(moveNode* i = moves.head; i != NULL; i = i->next) {
       Game.makeMove(i->data);
-      flexScore score = -negaMax(Game, depth - 1);
+      flexScore score = -negaMax(Game, depth - 1, --beta, --alpha);
       Game.undoMove();
-      if(score > max) {
-        max = score;
+      if(score >= beta) {
+        return beta;
       }
+      if(score > alpha)
+        alpha = score;
     }
-    return max;
+    return alpha;
 }
 
 /*void evaluate(game Game, move& bestMove) {
@@ -127,11 +128,19 @@ flexScore negaMax(game Game, int depth) {
 
 void evaluate(game Game, move& bestMove) {
   flexScore bestScore;
+  bestScore.extreme = true;
+  bestScore.favorable = false;
+  flexScore alpha;
+  alpha.extreme = true;
+  alpha.favorable = false;
+  flexScore beta;
+  beta.extreme = true;
+  beta.favorable = true;
 
   linkedMoveList moves = Game.generateLegalMoves();
   for(moveNode* i = moves.head; i != NULL; i = i->next) {
     Game.makeMove(i->data);
-    flexScore score = negaMax(Game, 3);
+    flexScore score = negaMax(Game, 3, alpha, beta);
     if(score > bestScore) {
       bestScore = score;
       bestMove = i->data;
