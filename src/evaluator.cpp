@@ -102,6 +102,13 @@ flexScore negaMax(game Game, int depth, flexScore alpha, flexScore beta) {
       return returner;
     }
     linkedMoveList moves = Game.generateLegalMoves();
+    if(moves.head == NULL) {
+      flexScore returner;
+      returner.tethered = true;
+      returner.count = 0;
+      returner.draw = true; // We currently assume this is a draw
+      return returner;
+    }
     for(moveNode* i = moves.head; i != NULL; i = i->next) {
       Game.makeMove(i->data);
       flexScore score = -negaMax(Game, depth - 1, --beta, --alpha);
