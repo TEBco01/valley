@@ -128,6 +128,36 @@ move algebraicToMove(const char* moveString) {
   move returnMove;
   returnMove.start = algebraicToSquare(moveString);
   returnMove.end = algebraicToSquare(moveString + 2);
+  switch(*(moveString + 4)) {
+    case 'q':
+      if(returnMove.end < 8) {
+        returnMove.special = 2;
+      } else {
+        returnMove.special = 6;
+      }
+      break;
+    case 'r':
+      if(returnMove.end < 8) {
+        returnMove.special = 3;
+      } else {
+        returnMove.special = 7;
+      }
+      break;
+    case 'k':
+      if(returnMove.end < 8) {
+        returnMove.special = 4;
+      } else {
+        returnMove.special = 8;
+      }
+      break;
+    case 'b':
+      if(returnMove.end < 8) {
+        returnMove.special = 5;
+      } else {
+        returnMove.special = 9;
+      }
+      break;
+  }
   return returnMove;
 }
 
