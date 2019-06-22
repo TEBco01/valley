@@ -17,15 +17,17 @@ limitations under the License.
 #include <evaluator.h>
 
 int boardCount(const U64 board) {
-  if(board == 0) return 0;
-
-  int count = 0;
-  for (int i=0; i < 64; i++) {
-    if( board & 1ULL << (63ULL - (U64)i) ) {
+  #if defined(__GNUC__) || defined(__GNUG__)
+    return __builtin_popcountll(board);
+  #else
+    U64 x = board;
+    int count = 0;
+    while(x) {
       count++;
+      x &= x - 1;
     }
-  }
-  return count;
+    return count;
+  #endif
 }
 
 double pieceCountScore(const game Game) {
