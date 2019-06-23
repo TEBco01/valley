@@ -91,16 +91,38 @@ void processUCI() {
         parseMovesIntoGame(state.Game, removeFirstToken(input2));
       }
     }
-    else if(token == "go") { // picks a random legal move
+    else if(token == "go") {
       if(!state.inGame)
       {
         state.Game = game();
         state.inGame = true;
       }
+      std::string input2 = removeFirstToken(input);
+      std::string token2 = getFirstToken(input2);
+      if(token2 == "perft") { // TODO: Implement checking for the depth
+        std::string input3 = removeFirstToken(input2);
+        std::string token3 = getFirstToken(input3);
 
-      move bestMove;
-      evaluate(state.Game, bestMove);
-      tellGUI("bestmove " + moveToAlgebraic(bestMove));
+        int depth = atoi(token3.c_str());
+        int number = 0;
+
+        linkedMoveList moves = state.Game.generateSemilegalMoves();
+        moveNode* i = moves.head;
+        while(i != NULL) {
+          state.Game.makeMove(i->data);
+          int subnumber = Perft(depth - 1, state.Game);
+          number += subnumber;
+          std::cout << moveToAlgebraic(i->data) << ": " << subnumber << std::endl;
+          state.Game.undoMove();
+          i = i->next;
+        }
+        std::cout << std::endl << "Nodes searched: " << number << std::endl;
+
+      } else {
+        move bestMove;
+        evaluate(state.Game, bestMove);
+        tellGUI("bestmove " + moveToAlgebraic(bestMove));
+      }
     }
     else if(token == "stop") {
 
