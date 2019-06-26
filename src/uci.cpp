@@ -106,7 +106,7 @@ void processUCI() {
         int depth = atoi(token3.c_str());
         int number = 0;
 
-        linkedMoveList moves = state.Game.generateSemilegalMoves();
+        linkedMoveList moves = state.Game.generateLegalMoves();
         moveNode* i = moves.head;
         while(i != NULL) {
           state.Game.makeMove(i->data);
