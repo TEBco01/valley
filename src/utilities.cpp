@@ -287,6 +287,22 @@ void parseMovesIntoGame(game& Game, std::string movesList) {
 
   moveNode* i = moves.head;
   while(i != NULL) {
+    if(i->data.start == 60) {
+      if(i->data.end == 62 && Game.boards.castleInfo.whiteHCan) {
+        i->data.special = 1;
+      }
+      if(i->data.end == 58 && Game.boards.castleInfo.whiteACan) {
+        i->data.special = 1;
+      }
+    }
+    else if (i->data.start == 4) {
+      if(i->data.end == 6 && Game.boards.castleInfo.blackHCan) {
+        i->data.special = 1;
+      }
+      if(i->data.end == 2 && Game.boards.castleInfo.blackACan) {
+        i->data.special = 1;
+      }
+    }
     Game.makeMove(i->data);
     i = i->next;
   }
