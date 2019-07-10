@@ -183,12 +183,12 @@ linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const ex
   possibleMoves += prLList;
   possibleMoves += prLExtraList;
 
-  U64 prR = ((game.BP & Rank_2) >> 8) & ~(info.BlackPieces) & info.WhitePieces;
+  U64 prR = ((game.BP & Rank_2) >> 9) & ~(info.BlackPieces) & info.WhitePieces;
   linkedMoveList prRList = generateMovesFromBitboard(prR);
   linkedMoveList prRExtraList;
   i = prRList.head;
   while(i != NULL) {
-    i->data.start = i->data.end - 8;
+    i->data.start = i->data.end - 9;
     i->data.special = 6;
     for(byte j = 7; j <= 9; j++) {
       prRExtraList.create(i->data.start, i->data.end, j);
