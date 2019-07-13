@@ -84,7 +84,7 @@ struct game {
     blacksTurn ^= 1;
   }
 
-  bool isGameLegal() {
+  bool isGameLegal() { // Most of this function can be moved to or shared with the "inCheck" function
     linkedMoveList moves = generateSemilegalMoves(); // TODO: Big optimization by reusing these generated moves if the depth increases
 
     moveNode* i = moves.head;
@@ -111,6 +111,9 @@ struct game {
         makeMove(i->data);
         if(!isGameLegal()) good = false;
         undoMove();
+
+        if(inCheck(blacksTurn, boards)) good = false;
+
         move intermediate;
         switch (i->data.end) {
           case 2:

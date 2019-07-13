@@ -610,3 +610,25 @@ bool missingKing(const bitboards game) {
   }
   return true;
 }
+
+bool inCheck(bool checkBlacks, const bitboards game) {
+  move nullMove; // Won't be needed since kings cannot be put into check via en Passant
+  linkedMoveList moves;
+  if(checkBlacks) {
+    moves = possibleMovesW(nullMove, game);
+  } else {
+    moves = possibleMovesB(nullMove, game);
+  }
+
+  moveNode* i = moves.head;
+  while(i != NULL) {
+    if(attackOnKing(i->data, game))
+    {
+      moves.deleteList();
+      return true;
+    }
+    i = i->next;
+  }
+  moves.deleteList();
+  return false;
+}
