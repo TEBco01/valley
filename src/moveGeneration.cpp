@@ -488,6 +488,16 @@ void applyMove(bitboards* game, move change) {
   U64 startMask = 1ULL << (63ULL - (U64)change.start);
   U64 endMask = 1ULL << (63ULL - (U64)change.end);
 
+  if(change.end == 0) {
+    game->castleInfo.blackACan = false;
+  } else if(change.end == 7) {
+    game->castleInfo.blackHCan = false;
+  } else if(change.end == 56) {
+    game->castleInfo.whiteACan = false;
+  } else if(change.end == 63) {
+    game->castleInfo.whiteHCan = false;
+  }
+
   setAllToZero(game, endMask);
 
   checkBoardMove(game->WP, startMask, endMask);
