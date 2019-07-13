@@ -26,3 +26,4 @@ void unapplyMove(bitboards* game, move change);
 
 bool attackOnKing(move change, const bitboards game);
 bool missingKing(const bitboards game);
+bool inCheck(bool checkBlacks, const bitboards game);
