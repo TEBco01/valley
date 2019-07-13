@@ -106,7 +106,7 @@ std::string moveToAlgebraic(const move change) {
         extra = "r";
         break;
       case 3:
-        extra = "k";
+        extra = "n";
         break;
       default:
         extra = "b";
@@ -143,7 +143,7 @@ move algebraicToMove(const char* moveString) {
         returnMove.special = 7;
       }
       break;
-    case 'k':
+    case 'n':
       if(returnMove.end < 8) {
         returnMove.special = 4;
       } else {
