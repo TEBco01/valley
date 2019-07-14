@@ -16,6 +16,22 @@ limitations under the License.
 
 #include <moveGeneration.h>
 
+int bitPop(U64& number) { // TODO: Check for zero?
+  #if defined(__GNUC__) || defined(__GNUG__)
+    int returner = __builtin_clzll(number);
+  #else
+    U64 LS1B = number & -number;
+    int returner = 0;
+    while(LS1B) {
+      returner++;
+      LS1B >>= 1;
+    }
+    returner = 64-returner
+  #endif
+    number &= (number-1);
+    return returner;
+}
+
 linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
   linkedMoveList moves;
   for (int i=0; i < 64; i++) {
@@ -27,13 +43,10 @@ linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
 }
 
 void constantShiftGenerator(U64 board, int shift, linkedMoveList& possibleMoves) {
-  linkedMoveList moves = generateMovesFromBitboard(board);
-  moveNode* i = moves.head;
-  while(i != NULL) {
-    i->data.start = i->data.end + shift;
-    i = i->next;
+  while(board != 0) {
+    int i = bitPop(board);
+    possibleMoves.create(i + shift, i);
   }
-  possibleMoves += moves;
 }
 
 void constantShiftGenerator(U64 board, int shift, int special, linkedMoveList& possibleMoves) {
