@@ -83,49 +83,28 @@ linkedMoveList possibleMovesWPawns(move lastMove, const bitboards game, const ex
 
   // Promotion
   U64 pr = ((game.WP & Rank_7) << 8) & ~(info.BlackPieces | info.WhitePieces);
-  linkedMoveList prList = generateMovesFromBitboard(pr);
-  linkedMoveList prExtraList;
-  moveNode* i = prList.head;
-  while(i != NULL) {
-    i->data.start = i->data.end + 8;
-    i->data.special = 2;
-    for(byte j = 3; j <= 5; j++) {
-      prExtraList.create(i->data.start, i->data.end, j);
+  while(pr != 0) {
+    int i = bitPop(pr);
+    for(byte j = 2; j <= 5; j++) {
+      possibleMoves.create(i + 8, i, j);
     }
-    i = i->next;
   }
-  possibleMoves += prList;
-  possibleMoves += prExtraList;
 
   U64 prL = ((game.WP & Rank_7) << 9) & ~(info.WhitePieces) & info.BlackPieces;
-  linkedMoveList prLList = generateMovesFromBitboard(prL);
-  linkedMoveList prLExtraList;
-  i = prLList.head;
-  while(i != NULL) {
-    i->data.start = i->data.end + 9;
-    i->data.special = 2;
-    for(byte j = 3; j <= 5; j++) {
-      prLExtraList.create(i->data.start, i->data.end, j);
+  while(prL != 0) {
+    int i = bitPop(prL);
+    for(byte j = 2; j <= 5; j++) {
+      possibleMoves.create(i + 9, i, j);
     }
-    i = i->next;
   }
-  possibleMoves += prLList;
-  possibleMoves += prLExtraList;
 
   U64 prR = ((game.WP & Rank_7) << 7) & ~(info.WhitePieces) & info.BlackPieces;
-  linkedMoveList prRList = generateMovesFromBitboard(prR);
-  linkedMoveList prRExtraList;
-  i = prRList.head;
-  while(i != NULL) {
-    i->data.start = i->data.end + 7;
-    i->data.special = 2;
-    for(byte j = 3; j <= 5; j++) {
-      prRExtraList.create(i->data.start, i->data.end, j);
+  while(prR != 0) {
+    int i = bitPop(prR);
+    for(byte j = 2; j <= 5; j++) {
+      possibleMoves.create(i + 7, i, j);
     }
-    i = i->next;
   }
-  possibleMoves += prRList;
-  possibleMoves += prRExtraList;
 
   // En passant
 	if(!(lastMove.start == 0 && lastMove.end == 0)) { // Was there a last move?
@@ -163,49 +142,28 @@ linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const ex
 
   // Promotion
   U64 pr = ((game.BP & Rank_2) >> 8) & ~(info.BlackPieces | info.WhitePieces);
-  linkedMoveList prList = generateMovesFromBitboard(pr);
-  linkedMoveList prExtraList;
-  moveNode* i = prList.head;
-  while(i != NULL) {
-    i->data.start = i->data.end - 8;
-    i->data.special = 6;
-    for(byte j = 7; j <= 9; j++) {
-      prExtraList.create(i->data.start, i->data.end, j);
+  while(pr != 0) {
+    int i = bitPop(pr);
+    for(byte j = 6; j <= 9; j++) {
+      possibleMoves.create(i - 8, i, j);
     }
-    i = i->next;
   }
-  possibleMoves += prList;
-  possibleMoves += prExtraList;
 
   U64 prL = ((game.BP & Rank_2) >> 7) & ~(info.BlackPieces) & info.WhitePieces;
-  linkedMoveList prLList = generateMovesFromBitboard(prL);
-  linkedMoveList prLExtraList;
-  i = prLList.head;
-  while(i != NULL) {
-    i->data.start = i->data.end - 7;
-    i->data.special = 6;
-    for(byte j = 7; j <= 9; j++) {
-      prLExtraList.create(i->data.start, i->data.end, j);
+  while(prL != 0) {
+    int i = bitPop(prL);
+    for(byte j = 6; j <= 9; j++) {
+      possibleMoves.create(i - 7, i, j);
     }
-    i = i->next;
   }
-  possibleMoves += prLList;
-  possibleMoves += prLExtraList;
 
   U64 prR = ((game.BP & Rank_2) >> 9) & ~(info.BlackPieces) & info.WhitePieces;
-  linkedMoveList prRList = generateMovesFromBitboard(prR);
-  linkedMoveList prRExtraList;
-  i = prRList.head;
-  while(i != NULL) {
-    i->data.start = i->data.end - 9;
-    i->data.special = 6;
-    for(byte j = 7; j <= 9; j++) {
-      prRExtraList.create(i->data.start, i->data.end, j);
+  while(prR != 0) {
+    int i = bitPop(prR);
+    for(byte j = 6; j <= 9; j++) {
+      possibleMoves.create(i - 9, i, j);
     }
-    i = i->next;
   }
-  possibleMoves += prRList;
-  possibleMoves += prRExtraList;
 
   // En passant
 	if(!(lastMove.start == 0 && lastMove.end == 0)) { // Was there a last move?
