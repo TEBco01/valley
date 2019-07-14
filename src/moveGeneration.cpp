@@ -17,18 +17,18 @@ limitations under the License.
 #include <moveGeneration.h>
 
 int bitPop(U64& number) { // TODO: Check for zero?
-  #if defined(__GNUC__) || defined(__GNUG__)
-    int returner = __builtin_clzll(number);
-  #else
+  /*#if defined(__GNUC__) || defined(__GNUG__)
+    int returner = __builtin_clzll(number); // Probably faster, but doesn't seem to work properly with our bit reset
+  #else*/
     U64 LS1B = number & -number;
     int returner = 0;
     while(LS1B) {
       returner++;
       LS1B >>= 1;
     }
-    returner = 64-returner
-  #endif
-    number &= (number-1);
+    returner = 64-returner;
+  //#endif
+    number = number & (number-1);
     return returner;
 }
 
