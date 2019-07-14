@@ -33,11 +33,11 @@ int bitPop(U64& number) { // TODO: Check for zero?
 }
 
 linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
+  U64 board = toBoard;
   linkedMoveList moves;
-  for (int i=0; i < 64; i++) {
-    if( toBoard & 1ULL << (63ULL - (U64)i) ) {
-      moves.create(0, i);
-    }
+  while(board) {
+    int i = bitPop(board);
+    moves.create(0, i);
   }
   return moves;
 }
@@ -50,14 +50,10 @@ void constantShiftGenerator(U64 board, int shift, linkedMoveList& possibleMoves)
 }
 
 void constantShiftGenerator(U64 board, int shift, int special, linkedMoveList& possibleMoves) {
-  linkedMoveList moves = generateMovesFromBitboard(board);
-  moveNode* i = moves.head;
-  while(i != NULL) {
-    i->data.start = i->data.end + shift;
-    i->data.special = special;
-    i = i->next;
+  while(board != 0) {
+    int i = bitPop(board);
+    possibleMoves.create(i + shift, i, special);
   }
-  possibleMoves += moves;
 }
 
 bool pieceAtSquare(const U64 board, const int square) {
