@@ -131,6 +131,44 @@ bool pieceAtSquare(const U64 board, const int square) {
   }
 }
 
+U64 slowRayBoard(const int origin, const int modifier, const U64 NoNoZone) {
+  U64 returnBoard;
+  int cursor = origin;
+
+  while (true) {
+    if(pieceAtSquare(NoNoZone, cursor)) {
+      break;
+    }
+
+    cursor += modifier;
+    returnBoard |= 1ULL << (63ULL - (U64)cursor);
+  }
+
+  return returnBoard;
+}
+
+//enum dirs {Nort = 0, NoEa = 1, NoWe = 2, West = 3, East = 4, Sout = 5, SoWe = 6, SoEa = 7};
+
+void populateRayTable() {
+  std::cout << "{" << std::endl;
+  for(int i = 0; i < 64; i++) {
+    std::cout << "{";
+    std::cout << slowRayBoard(i, -8, Rank_8) << "ULL, ";
+    std::cout << slowRayBoard(i, -7, Rank_8 | File_H) << "ULL, ";
+    std::cout << slowRayBoard(i, -9, Rank_8 | File_A) << "ULL, ";
+    std::cout << slowRayBoard(i, -1, File_A) << "ULL, ";
+    std::cout << slowRayBoard(i, 1, File_H) << "ULL, ";
+    std::cout << slowRayBoard(i, 8, Rank_1) << "ULL, ";
+    std::cout << slowRayBoard(i, 7, Rank_1 | File_A) << "ULL, ";
+    std::cout << slowRayBoard(i, 9, Rank_1 | File_H) << "ULL}";
+    if(i != 63) {
+      std::cout << ",";
+    }
+    std::cout << std::endl;
+  }
+  std::cout << "};" << std::endl;
+}
+
 linkedMoveList possibleMovesWPawns(move lastMove, const bitboards game, const extraBitboardsInfo info) {
   linkedMoveList possibleMoves;
   // Move forward one

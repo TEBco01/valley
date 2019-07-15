@@ -26,6 +26,7 @@ std::string hearGUI() {
 }
 
 struct engineState {
+  bool initialized = false;
   bool isUCI = true;
   bool inGame = false;
   game Game;
@@ -45,6 +46,10 @@ void processUCI() {
       tellGUI("uciok");
     }
     else if(token == "isready") {
+      if(!state.initialized) {
+        //populateRayTable();
+        state.initialized = true;
+      }
       tellGUI("readyok");
     }
     else if(token == "debug") {
@@ -96,6 +101,10 @@ void processUCI() {
       {
         state.Game = game();
         state.inGame = true;
+      }
+      if(!state.initialized) {
+        //populateRayTable();
+        state.initialized = true;
       }
       std::string input2 = removeFirstToken(input);
       std::string token2 = getFirstToken(input2);
