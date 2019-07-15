@@ -387,16 +387,49 @@ linkedMoveList rayAttack(const int origin, const int modifier, const U64 NoNoZon
   return possibleMoves;
 }
 
+U64 getPositiveRayAttacks(U64 occupied, U64 friendly, int direction, int square) {
+  U64 attacks = RayTable[square][direction];
+  U64 blocker = attacks & occupied;
+  if(blocker) {
+    square = bitScanReverse(blocker); // bitScans are reversed from normal naming because our square mapping is different
+    attacks ^= RayTable[square][direction];
+  }
+  attacks &= ~friendly;
+  return attacks;
+}
+
+U64 getNegativeRayAttacks(U64 occupied, U64 friendly, int direction, int square) {
+  U64 attacks = RayTable[square][direction];
+  U64 blocker = attacks & occupied;
+  if(blocker) {
+    square = bitScan(blocker);
+    attacks ^= RayTable[square][direction];
+  }
+  attacks &= ~friendly;
+  return attacks;
+}
+
 linkedMoveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces, castleBools castleInfo, bool black) {
   linkedMoveList possibleMoves;
   linkedMoveList positions = generateMovesFromBitboard(rBoard);
 
+  const U64 occupied = FriendlyPieces | EnemyPieces;
+
   moveNode* i = positions.head;
   while(i != NULL) {
-    possibleMoves += rayAttack((int)i->data.end, -8, Rank_8, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, 8, Rank_1, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, -1, File_A, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, 1, File_H, EnemyPieces, FriendlyPieces);
+    int square = (int)i->data.end;
+    U64 attacks = 0ULL;
+
+    attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 0, square);
+    attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 3, square);
+    attacks |= getPositiveRayAttacks(occupied, FriendlyPieces, 4, square);
+    attacks |= getPositiveRayAttacks(occupied, FriendlyPieces, 5, square);
+
+    while(attacks) {
+      int j = bitPop(attacks);
+      possibleMoves.create(square, j);
+    }
+
     i = i->next;
   }
 
@@ -437,12 +470,23 @@ linkedMoveList possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, 
   linkedMoveList possibleMoves;
   linkedMoveList positions = generateMovesFromBitboard(rBoard);
 
+  const U64 occupied = FriendlyPieces | EnemyPieces;
+
   moveNode* i = positions.head;
   while(i != NULL) {
-    possibleMoves += rayAttack((int)i->data.end, -9, Rank_8 | File_A, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, -7, Rank_8 | File_H, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, 7, Rank_1 | File_A, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, 9, Rank_1 | File_H, EnemyPieces, FriendlyPieces);
+    int square = (int)i->data.end;
+    U64 attacks = 0ULL;
+
+    attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 1, square);
+    attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 2, square);
+    attacks |= getPositiveRayAttacks(occupied, FriendlyPieces, 6, square);
+    attacks |= getPositiveRayAttacks(occupied, FriendlyPieces, 7, square);
+
+    while(attacks) {
+      int j = bitPop(attacks);
+      possibleMoves.create(square, j);
+    }
+
     i = i->next;
   }
 
@@ -462,16 +506,28 @@ linkedMoveList possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, c
   linkedMoveList possibleMoves;
   linkedMoveList positions = generateMovesFromBitboard(qBoard);
 
+  const U64 occupied = FriendlyPieces | EnemyPieces;
+
   moveNode* i = positions.head;
   while(i != NULL) {
-    possibleMoves += rayAttack((int)i->data.end, -8, Rank_8, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, 8, Rank_1, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, -1, File_A, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, 1, File_H, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, -9, Rank_8 | File_A, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, -7, Rank_8 | File_H, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, 7, Rank_1 | File_A, EnemyPieces, FriendlyPieces);
-    possibleMoves += rayAttack((int)i->data.end, 9, Rank_1 | File_H, EnemyPieces, FriendlyPieces);
+    int square = (int)i->data.end;
+    U64 attacks = 0ULL;
+
+    attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 0, square);
+    attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 1, square);
+    attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 2, square);
+    attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 3, square);
+    attacks |= getPositiveRayAttacks(occupied, FriendlyPieces, 4, square);
+    attacks |= getPositiveRayAttacks(occupied, FriendlyPieces, 5, square);
+    attacks |= getPositiveRayAttacks(occupied, FriendlyPieces, 6, square);
+    attacks |= getPositiveRayAttacks(occupied, FriendlyPieces, 7, square);
+
+
+    while(attacks) {
+      int j = bitPop(attacks);
+      possibleMoves.create(square, j);
+    }
+
     i = i->next;
   }
 
