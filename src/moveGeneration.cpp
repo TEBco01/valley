@@ -82,6 +82,7 @@ const U64 RayTable [64][8] = {
   {144680345676153344ULL, 256ULL, 36099303471055872ULL, 252ULL, 1ULL, 0ULL, 0ULL, 0ULL},
   {72340172838076672ULL, 0ULL, 9241421688590303744ULL, 254ULL, 0ULL, 0ULL, 0ULL, 0ULL}
 };
+const int ms1bTable[256] = {0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7};
 
 int bitPop(U64& number) { // TODO: Check for zero?
   /*#if defined(__GNUC__) || defined(__GNUG__)
@@ -97,6 +98,34 @@ int bitPop(U64& number) { // TODO: Check for zero?
   //#endif
     number = number & (number-1);
     return returner;
+}
+
+int bitScan(U64 board) {
+  U64 LS1B = board & -board;
+  int returner = 0;
+  while(LS1B) {
+    returner++;
+    LS1B >>= 1;
+  }
+  return 64-returner;
+}
+
+int bitScanReverse(U64 board)
+{
+   int returner = 0;
+   if (board > 0xFFFFFFFF) {
+      board >>= 32;
+      returner = 32;
+   }
+   if (board > 0xFFFF) {
+      board >>= 16;
+      returner += 16;
+   }
+   if (board > 0xFF) {
+      board >>= 8;
+      returner += 8;
+   }
+   return 63 - (returner + ms1bTable[board]);
 }
 
 linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
