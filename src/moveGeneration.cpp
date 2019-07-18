@@ -85,9 +85,9 @@ const U64 RayTable [64][8] = {
 const int ms1bTable[256] = {0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7};
 
 int bitPop(U64& number) { // TODO: Check for zero?
-  /*#if defined(__GNUC__) || defined(__GNUG__)
-    int returner = __builtin_clzll(number); // Probably faster, but doesn't seem to work properly with our bit reset
-  #else*/
+  #if defined(__GNUC__) || defined(__GNUG__)
+    int returner = 63 - __builtin_ctzll(number);
+  #else
     U64 LS1B = number & -number;
     int returner = 0;
     while(LS1B) {
@@ -95,7 +95,7 @@ int bitPop(U64& number) { // TODO: Check for zero?
       LS1B >>= 1;
     }
     returner = 64-returner;
-  //#endif
+  #endif
     number = number & (number-1);
     return returner;
 }
@@ -112,6 +112,10 @@ int bitScan(U64 board) {
 
 int bitScanReverse(U64 board)
 {
+  #if defined(__GNUC__) || defined(__GNUG__)
+    int returner = __builtin_clzll(board);
+    return returner;
+  #else
    int returner = 0;
    if (board > 0xFFFFFFFF) {
       board >>= 32;
@@ -126,6 +130,7 @@ int bitScanReverse(U64 board)
       returner += 8;
    }
    return 63 - (returner + ms1bTable[board]);
+  #endif
 }
 
 linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
