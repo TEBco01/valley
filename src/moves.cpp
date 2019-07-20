@@ -16,6 +16,45 @@ limitations under the License.
 
 #include <moves.h>
 
+void arrayMoveList::add(move value) {
+	moves[stackCount] = value;
+	stackCount++;
+}
+
+void arrayMoveList::create(byte start, byte end, byte special) {
+	move newMove;
+	newMove.start = start;
+	newMove.end = end;
+	newMove.special = special;
+	add(newMove);
+}
+
+bool arrayMoveList::next() {
+	iteratorCount++;
+	if(iteratorCount < stackCount) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+move arrayMoveList::getMove() {
+	return moves[iteratorCount];
+}
+
+void arrayMoveList::remove() {
+	int cur = iteratorCount;
+	stackCount--;
+	while(cur < stackCount) {
+		moves[cur] = moves[cur + 1];
+		cur++;
+	}
+}
+
+void arrayMoveList::resetIterator() {
+	iteratorCount = -1;
+}
+
 void linkedMoveList::add(move value){
 	moveNode *temp = new moveNode;
 	temp->data = value;

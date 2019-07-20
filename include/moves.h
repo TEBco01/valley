@@ -48,6 +48,21 @@ struct extraBitboardsInfo {
   }
 };
 
+class arrayMoveList {
+	public:
+		void add(move value); // Adds a move to the list
+		void create(byte start, byte end, byte special); // Creates and adds a move to the list
+    void create(byte start, byte end) {this->create(start, end, 0);}
+		bool next(); // Moves the iterator to the next move. Returns false if there are no more moves
+		move getMove(); // Returns the move the iterator is currently on
+		void remove(); // Removes the move the iterator is currently on
+		void resetIterator(); // Sets the iterator back to the beginning
+	private:
+		move moves[256]; // This implementation has no way to deal with more than 256 moves in a list :) This can be fixed later
+		int stackCount = 0;
+		int iteratorCount = -1;
+};
+
 struct moveNode {
 	move data;
 	moveNode *next;
