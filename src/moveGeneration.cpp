@@ -101,6 +101,9 @@ int bitPop(U64& number) { // TODO: Check for zero?
 }
 
 int bitScan(U64 board) {
+  #if defined(__GNUC__) || defined(__GNUG__)
+    return 63 - __builtin_ctzll(board);
+  #else
   U64 LS1B = board & -board;
   int returner = 0;
   while(LS1B) {
@@ -108,6 +111,7 @@ int bitScan(U64 board) {
     LS1B >>= 1;
   }
   return 64-returner;
+  #endif
 }
 
 int bitScanReverse(U64 board)
