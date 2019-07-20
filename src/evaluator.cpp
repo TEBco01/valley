@@ -103,7 +103,7 @@ flexScore negaMax(game Game, int depth, flexScore alpha, flexScore beta) {
       returner.score = side*positionStrengthFast(Game);
       return returner;
     }
-    linkedMoveList moves = Game.generateLegalMoves();
+    /*linkedMoveList moves = Game.generateLegalMoves();
     if(moves.head == NULL) {
       flexScore returner;
       returner.tethered = true;
@@ -120,7 +120,29 @@ flexScore negaMax(game Game, int depth, flexScore alpha, flexScore beta) {
       }
       if(score > alpha)
         alpha = score;
+    }*/
+
+    arrayMoveList moves = Game.generateLegalMoves();
+    moves.resetIterator();
+    if(!moves.next()) {
+      flexScore returner;
+      returner.tethered = true;
+      returner.count = 0;
+      returner.draw = true; // We currently assume this is a draw
+      return returner;
     }
+    moves.resetIterator();
+    while(moves.next()) {
+      Game.makeMove(moves.getMove());
+      flexScore score = -negaMax(Game, depth - 1, --beta, --alpha);
+      Game.undoMove();
+      if(score >= beta) {
+        return beta;
+      }
+      if(score > alpha)
+        alpha = score;
+    }
+
     return alpha;
 }
 
@@ -146,7 +168,7 @@ void evaluate(game Game, move& bestMove) {
   beta.extreme = true;
   beta.favorable = true;
 
-  linkedMoveList moves = Game.generateLegalMoves();
+  /*linkedMoveList moves = Game.generateLegalMoves();
   for(moveNode* i = moves.head; i != NULL; i = i->next) {
     Game.makeMove(i->data);
     flexScore score = negaMax(Game, 3, alpha, beta);
@@ -157,5 +179,17 @@ void evaluate(game Game, move& bestMove) {
     }
     Game.undoMove();
     //std::cout << moveToAlgebraic(i->data) << " - " << score.score << std::endl;
+  }*/
+
+  arrayMoveList moves = Game.generateLegalMoves();
+  moves.resetIterator();
+  while(moves.next())
+    Game.makeMove(moves.getMove());
+    flexScore score = negaMax(Game, 3, alpha, beta);
+    if(score > bestScore) {
+      bestScore = score;
+      bestMove = move.getMove();
+    }
+    Game.undoMove();
   }
 }

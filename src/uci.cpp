@@ -106,7 +106,7 @@ void processUCI() {
         int depth = atoi(token3.c_str());
         int number = 0;
 
-        linkedMoveList moves = state.Game.generateLegalMoves();
+        /*linkedMoveList moves = state.Game.generateLegalMoves();
         moveNode* i = moves.head;
         while(i != NULL) {
           state.Game.makeMove(i->data);
@@ -115,6 +115,17 @@ void processUCI() {
           std::cout << moveToAlgebraic(i->data) << ": " << subnumber << std::endl;
           state.Game.undoMove();
           i = i->next;
+        }
+        std::cout << std::endl << "Nodes searched: " << number << std::endl;*/
+
+        arrayMoveList moves = state.Game.generateLegalMoves();
+        moves.resetIterator();
+        while(moves.next()) {
+          state.Game.makeMove(moves.getMove());
+          int subnumber = Perft(depth - 1, state.Game);
+          number += subnumber;
+          std::cout << moveToAlgebraic(moves.getMove()) << ": " << subnumber << std::endl;
+          state.Game.undoMove();
         }
         std::cout << std::endl << "Nodes searched: " << number << std::endl;
 

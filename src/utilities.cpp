@@ -16,7 +16,7 @@ limitations under the License.
 
 #include <utilities.h>
 
-U64 Perft(int depth, game Game)
+/*U64 Perft(int depth, game Game)
 {
     U64 nodes = 0;
 
@@ -32,6 +32,23 @@ U64 Perft(int depth, game Game)
       i = i->next;
     }
     moves.deleteList();
+    return nodes;
+}*/
+
+U64 Perft(int depth, game Game)
+{
+    U64 nodes = 0;
+
+    if (depth == 0) return 1;
+
+    arrayMoveList moves = Game.generateLegalMoves();
+
+    moves.resetIterator();
+    while(moves.next()) {
+      Game.makeMove(moves.getMove());
+      nodes += Perft(depth - 1, Game);
+      Game.undoMove();
+    }
     return nodes;
 }
 

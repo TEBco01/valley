@@ -30,6 +30,16 @@ while(i != NULL) {
 
 */
 
+/* template for iterating through arrayMoveList
+
+list.resetIterator();
+while(list.next()) {
+  // loop code
+  // Use the getMove and remove functions to interact
+}
+
+*/
+
 struct boardNode {
   bitboards boards;
   boardNode* last;
@@ -100,7 +110,7 @@ struct game {
     return true;
   }
 
-  linkedMoveList generateLegalMoves() {
+  /*linkedMoveList generateLegalMoves() {
     linkedMoveList moves = generateSemilegalMoves();
     linkedMoveList returnedMoves;
 
@@ -155,9 +165,72 @@ struct game {
     }
     moves.deleteList();
     return returnedMoves;
+  }*/
+
+  arrayMoveList generateLegalMoves() {
+    arrayMoveList moves = generateSemilegalMoves();
+    arrayMoveList returnedMoves;
+
+    moves.resetIterator();
+    while(moves.next()) {
+      if(moves.getMove().special == 1) { // Are castling kings put in check en route?
+        bool good = true;
+        makeMove(moves.getMove());
+        if(!isGameLegal()) good = false;
+        undoMove();
+
+        if(inCheck(blacksTurn, boards)) good = false;
+
+        move intermediate;
+        switch (moves.getMove().end) {
+          case 2:
+            intermediate.start = moves.getMove().start;
+            intermediate.end = 3;
+            makeMove(intermediate);
+              if(!isGameLegal()) good = false;
+            undoMove();
+          break;
+          case 6:
+            intermediate.start = moves.getMove().start;
+            intermediate.end = 5;
+            makeMove(intermediate);
+              if(!isGameLegal()) good = false;
+            undoMove();
+          break;
+          case 58:
+            intermediate.start = moves.getMove().start;
+            intermediate.end = 59;
+            makeMove(intermediate);
+              if(!isGameLegal()) good = false;
+            undoMove();
+          break;
+          case 62:
+            intermediate.start = moves.getMove().start;
+            intermediate.end = 61;
+            makeMove(intermediate);
+              if(!isGameLegal()) good = false;
+            undoMove();
+          break;
+        }
+        if(good) returnedMoves.add(moves.getMove());
+      } else {
+        makeMove(moves.getMove());
+        if(isGameLegal()) returnedMoves.add(moves.getMove());
+        undoMove();
+      }
+    }
+    return returnedMoves;
   }
 
-  linkedMoveList generateSemilegalMoves() {
+  /*linkedMoveList generateSemilegalMoves() {
+    if(blacksTurn) {
+      return possibleMovesB(history.peek(), boards);
+    } else {
+      return possibleMovesW(history.peek(), boards);
+    }
+  } */
+
+  arrayMoveList generateSemilegalMoves() {
     if(blacksTurn) {
       return possibleMovesB(history.peek(), boards);
     } else {
