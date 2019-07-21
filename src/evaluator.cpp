@@ -183,12 +183,12 @@ void evaluate(game Game, move& bestMove) {
 
   arrayMoveList moves = Game.generateLegalMoves();
   moves.resetIterator();
-  while(moves.next())
+  while(moves.next()) {
     Game.makeMove(moves.getMove());
     flexScore score = negaMax(Game, 3, alpha, beta);
     if(score > bestScore) {
       bestScore = score;
-      bestMove = move.getMove();
+      bestMove = moves.getMove();
     }
     Game.undoMove();
   }
