@@ -18,8 +18,6 @@ limitations under the License.
 
 #include <game.h>
 #include <moves.h>
-#include <iostream> // For debugging
-#include <utilities.h> // Also for debugging
 
 struct flexScore {
   double score = 0; // The current evaulation of this position
@@ -63,6 +61,7 @@ if(b.tethered) {
 
 }
 */
+  // This compares flexScores based on their types and what is more favorable for us
   bool operator>(const flexScore& b) { // There's probably a more readable way to do this...
     if(this->extreme) {
       if(b.extreme) {

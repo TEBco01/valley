@@ -3,7 +3,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 SRC = $(wildcard $(SRC_DIR)/*.cpp )
 OBJ = $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
-CPP_FLAGS += -Iinclude
+CPP_FLAGS += -Iinclude -O3
 CFLAGS += -Wall
 #CXXFLAGS += -Iinclude
 
