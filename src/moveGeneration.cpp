@@ -143,14 +143,14 @@ linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
   return moves;
 }
 
-void constantShiftGenerator(U64 board, int shift, linkedMoveList& possibleMoves) {
+void constantShiftGenerator(U64 board, int shift, arrayMoveList& possibleMoves) {
   while(board != 0) {
     int i = bitPop(board);
     possibleMoves.create(i + shift, i);
   }
 }
 
-void constantShiftGenerator(U64 board, int shift, int special, linkedMoveList& possibleMoves) {
+void constantShiftGenerator(U64 board, int shift, int special, arrayMoveList& possibleMoves) {
   while(board != 0) {
     int i = bitPop(board);
     possibleMoves.create(i + shift, i, special);
@@ -165,8 +165,7 @@ bool pieceAtSquare(const U64 board, const int square) {
   }
 }
 
-linkedMoveList possibleMovesWPawns(move lastMove, const bitboards game, const extraBitboardsInfo info) {
-  linkedMoveList possibleMoves;
+void possibleMovesWPawns(move lastMove, const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
   // Move forward one
   U64 fw1 = ( (game.WP & ~Rank_7) << 8 ) & ~(info.BlackPieces | info.WhitePieces);
   constantShiftGenerator(fw1, 8, possibleMoves);
@@ -220,12 +219,9 @@ linkedMoveList possibleMovesWPawns(move lastMove, const bitboards game, const ex
 			}
 		}
 	}
-
-  return possibleMoves;
 }
 
-linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const extraBitboardsInfo info) {
-  linkedMoveList possibleMoves;
+void possibleMovesBPawns(move lastMove, const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
   // Move forward one
   U64 fw1 = ( (game.BP & ~Rank_2) >> 8 ) & ~(info.BlackPieces | info.WhitePieces);
   constantShiftGenerator(fw1, -8, possibleMoves);
@@ -279,13 +275,9 @@ linkedMoveList possibleMovesBPawns(move lastMove, const bitboards game, const ex
 			}
 		}
 	}
-
-  return possibleMoves;
 }
 
-linkedMoveList possibleMovesKnights(const U64 kBoard, const U64 FriendlyPieces) {
-  linkedMoveList possibleMoves;
-
+void possibleMovesKnights(const U64 kBoard, const U64 FriendlyPieces, arrayMoveList& possibleMoves) {
   //Left two up one
   U64 l2u1 = ((kBoard & ~(File_A | File_B | Rank_8)) << 10) & ~FriendlyPieces; // Posible trival optimization by precomupting const bitboard combinations
   constantShiftGenerator(l2u1, 10, possibleMoves);
@@ -317,21 +309,17 @@ linkedMoveList possibleMovesKnights(const U64 kBoard, const U64 FriendlyPieces) 
   //Right one down two
   U64 r1d2 = ((kBoard & ~(File_H | Rank_1 | Rank_2)) >> 17) & ~FriendlyPieces;
   constantShiftGenerator(r1d2, -17, possibleMoves);
-
-  return possibleMoves;
 }
 
-linkedMoveList possibleMovesWKnights(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesKnights(game.WN, info.WhitePieces);
+void possibleMovesWKnights(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
+  possibleMovesKnights(game.WN, info.WhitePieces, possibleMoves);
 }
 
-linkedMoveList possibleMovesBKnights(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesKnights(game.BN, info.BlackPieces);
+void possibleMovesBKnights(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
+  possibleMovesKnights(game.BN, info.BlackPieces, possibleMoves);
 }
 
-linkedMoveList possibleMovesKings(const U64 kBoard, const U64 FriendlyPieces) {
-  linkedMoveList possibleMoves;
-
+void possibleMovesKings(const U64 kBoard, const U64 FriendlyPieces, arrayMoveList& possibleMoves) {
   U64 u = ((kBoard & ~(Rank_8)) << 8) & ~FriendlyPieces;
   constantShiftGenerator(u, 8, possibleMoves);
 
@@ -355,16 +343,14 @@ linkedMoveList possibleMovesKings(const U64 kBoard, const U64 FriendlyPieces) {
 
   U64 dl = ((kBoard & ~(File_A | Rank_1)) >> 7) & ~FriendlyPieces;
   constantShiftGenerator(dl, -7, possibleMoves);
-
-  return possibleMoves;
 }
 
-linkedMoveList possibleMovesWKings(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesKings(game.WK, info.WhitePieces);
+void possibleMovesWKings(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
+  possibleMovesKings(game.WK, info.WhitePieces, possibleMoves);
 }
 
-linkedMoveList possibleMovesBKings(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesKings(game.BK, info.BlackPieces);
+void possibleMovesBKings(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
+  possibleMovesKings(game.BK, info.BlackPieces, possibleMoves);
 }
 
 // TODO: Optimization possible. Reduction from ints? Mask consolidation?
@@ -414,8 +400,7 @@ U64 getNegativeRayAttacks(U64 occupied, U64 friendly, int direction, int square)
   return attacks;
 }
 
-linkedMoveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces, castleBools castleInfo, bool black) {
-  linkedMoveList possibleMoves;
+void possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces, castleBools castleInfo, bool black, arrayMoveList& possibleMoves) {
   linkedMoveList positions = generateMovesFromBitboard(rBoard);
 
   const U64 occupied = FriendlyPieces | EnemyPieces;
@@ -459,20 +444,17 @@ linkedMoveList possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, co
 				possibleMoves.create(60, 62, 1);
 		}
 	}
-
-  return possibleMoves;
 }
 
-linkedMoveList possibleMovesWRooks(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesRooks(game.WR, info.WhitePieces, info.BlackPieces, game.castleInfo, false);
+void possibleMovesWRooks(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
+  possibleMovesRooks(game.WR, info.WhitePieces, info.BlackPieces, game.castleInfo, false, possibleMoves);
 }
 
-linkedMoveList possibleMovesBRooks(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesRooks(game.BR, info.BlackPieces, info.WhitePieces, game.castleInfo, true);
+void possibleMovesBRooks(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
+  possibleMovesRooks(game.BR, info.BlackPieces, info.WhitePieces, game.castleInfo, true, possibleMoves);
 }
 
-linkedMoveList possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
-  linkedMoveList possibleMoves;
+void possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces, arrayMoveList& possibleMoves) {
   linkedMoveList positions = generateMovesFromBitboard(rBoard);
 
   const U64 occupied = FriendlyPieces | EnemyPieces;
@@ -496,19 +478,17 @@ linkedMoveList possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, 
   }
 
   positions.deleteList();
-  return possibleMoves;
 }
 
-linkedMoveList possibleMovesWBishops(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesBishops(game.WB, info.WhitePieces, info.BlackPieces);
+void possibleMovesWBishops(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
+  possibleMovesBishops(game.WB, info.WhitePieces, info.BlackPieces, possibleMoves);
 }
 
-linkedMoveList possibleMovesBBishops(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesBishops(game.BB, info.BlackPieces, info.WhitePieces);
+void possibleMovesBBishops(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
+  possibleMovesBishops(game.BB, info.BlackPieces, info.WhitePieces, possibleMoves);
 }
 
-linkedMoveList possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, const U64 EnemyPieces) {
-  linkedMoveList possibleMoves;
+void possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, const U64 EnemyPieces, arrayMoveList& possibleMoves) {
   linkedMoveList positions = generateMovesFromBitboard(qBoard);
 
   const U64 occupied = FriendlyPieces | EnemyPieces;
@@ -537,47 +517,46 @@ linkedMoveList possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, c
   }
 
   positions.deleteList();
-  return possibleMoves;
 }
 
-linkedMoveList possibleMovesWQueens(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesQueens(game.WQ, info.WhitePieces, info.BlackPieces);
+void possibleMovesWQueens(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
+  possibleMovesQueens(game.WQ, info.WhitePieces, info.BlackPieces, possibleMoves);
 }
 
-linkedMoveList possibleMovesBQueens(const bitboards game, const extraBitboardsInfo info) {
-  return possibleMovesQueens(game.BQ, info.BlackPieces, info.WhitePieces);
+void possibleMovesBQueens(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
+  possibleMovesQueens(game.BQ, info.BlackPieces, info.WhitePieces, possibleMoves);
 }
 
 // List all moves the player can make for the given game
 // Only guaranteed for standard chess
-linkedMoveList possibleMovesW(move lastMove, const bitboards game) {
-  linkedMoveList possibleMoves;
+arrayMoveList possibleMovesW(move lastMove, const bitboards game) {
+  arrayMoveList possibleMoves;
 
   extraBitboardsInfo info;
   info.updateFromBitboards(game);
 
-  possibleMoves += possibleMovesWPawns(lastMove, game, info);
-  possibleMoves += possibleMovesWKnights(game, info);
-  possibleMoves += possibleMovesWKings(game, info);
-  possibleMoves += possibleMovesWRooks(game, info);
-  possibleMoves += possibleMovesWBishops(game, info);
-  possibleMoves += possibleMovesWQueens(game, info);
+  possibleMovesWPawns(lastMove, game, info, possibleMoves);
+  possibleMovesWKnights(game, info, possibleMoves);
+  possibleMovesWKings(game, info, possibleMoves);
+  possibleMovesWRooks(game, info, possibleMoves);
+  possibleMovesWBishops(game, info, possibleMoves);
+  possibleMovesWQueens(game, info, possibleMoves);
 
   return possibleMoves;
 }
 
-linkedMoveList possibleMovesB(move lastMove, const bitboards game) {
-  linkedMoveList possibleMoves;
+arrayMoveList possibleMovesB(move lastMove, const bitboards game) {
+  arrayMoveList possibleMoves;
 
   extraBitboardsInfo info;
   info.updateFromBitboards(game);
 
-  possibleMoves += possibleMovesBPawns(lastMove, game, info);
-  possibleMoves += possibleMovesBKnights(game, info);
-  possibleMoves += possibleMovesBKings(game, info);
-  possibleMoves += possibleMovesBRooks(game, info);
-  possibleMoves += possibleMovesBBishops(game, info);
-  possibleMoves += possibleMovesBQueens(game, info);
+  possibleMovesBPawns(lastMove, game, info, possibleMoves);
+  possibleMovesBKnights(game, info, possibleMoves);
+  possibleMovesBKings(game, info, possibleMoves);
+  possibleMovesBRooks(game, info, possibleMoves);
+  possibleMovesBBishops(game, info, possibleMoves);
+  possibleMovesBQueens(game, info, possibleMoves);
 
   return possibleMoves;
 }
