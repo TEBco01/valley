@@ -54,42 +54,6 @@ double positionStrengthFast(const game Game) {
   return pieceCountScore(Game);
 }
 
-move maxPositionStrengthFast(linkedMoveList moves, game Game) {
-  double bestScore = -1.0;
-  move bestMove;
-
-  moveNode* i = moves.head;
-  while(i != NULL) {
-    Game.makeMove(i->data);
-    double score = positionStrengthFast(Game);
-    Game.undoMove();
-    if(score > bestScore) {
-      bestScore = score;
-      bestMove = i->data;
-    }
-    i = i->next;
-  }
-  return bestMove;
-}
-
-move minPositionStrengthFast(linkedMoveList moves, game Game) {
-  double bestScore = 1e99;
-  move bestMove;
-
-  moveNode* i = moves.head;
-  while(i != NULL) {
-    Game.makeMove(i->data);
-    double score = positionStrengthFast(Game);
-    Game.undoMove();
-    if(score < bestScore) {
-      bestScore = score;
-      bestMove = i->data;
-    }
-    i = i->next;
-  }
-  return bestMove;
-}
-
 flexScore negaMax(game Game, int depth, flexScore alpha, flexScore beta) {
     if(depth == 0) {
       double side;

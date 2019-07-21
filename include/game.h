@@ -20,16 +20,6 @@ limitations under the License.
 #include <moves.h>
 #include <moveGeneration.h>
 
-/* template for iterating through linkedMoveList
-
-moveNode* i = moves.head;
-while(i != NULL) {
-  // loop code
-  i = i->next;
-}
-
-*/
-
 /* template for iterating through arrayMoveList
 
 list.resetIterator();

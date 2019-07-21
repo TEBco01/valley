@@ -133,16 +133,6 @@ int bitScanReverse(U64 board)
   #endif
 }
 
-linkedMoveList generateMovesFromBitboard(const U64 toBoard) {
-  U64 board = toBoard;
-  linkedMoveList moves;
-  while(board) {
-    int i = bitPop(board);
-    moves.create(0, i);
-  }
-  return moves;
-}
-
 void constantShiftGenerator(U64 board, int shift, arrayMoveList& possibleMoves) {
   while(board != 0) {
     int i = bitPop(board);
@@ -351,31 +341,6 @@ void possibleMovesWKings(const bitboards game, const extraBitboardsInfo info, ar
 
 void possibleMovesBKings(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
   possibleMovesKings(game.BK, info.BlackPieces, possibleMoves);
-}
-
-// TODO: Optimization possible. Reduction from ints? Mask consolidation?
-linkedMoveList rayAttack(const int origin, const int modifier, const U64 NoNoZone, const U64 enemies, const U64 friendlies) {
-  linkedMoveList possibleMoves;
-  int cursor = origin;
-
-  while (true) {
-    if(pieceAtSquare(NoNoZone, cursor)) {
-      break;
-    }
-
-    cursor += modifier;
-
-    if(pieceAtSquare(friendlies, cursor)) {
-      break;
-    }
-    if(pieceAtSquare(enemies, cursor)) {
-      possibleMoves.create(origin, cursor);
-      break;
-    }
-    possibleMoves.create(origin, cursor);
-  }
-
-  return possibleMoves;
 }
 
 U64 getPositiveRayAttacks(U64 occupied, U64 friendly, int direction, int square) {
