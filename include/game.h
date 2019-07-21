@@ -107,63 +107,6 @@ struct game {
     return true;
   }
 
-  /*linkedMoveList generateLegalMoves() {
-    linkedMoveList moves = generateSemilegalMoves();
-    linkedMoveList returnedMoves;
-
-    moveNode* i = moves.head;
-    while(i != NULL) {
-      if(i->data.special == 1) { // Are castling kings put in check en route?
-        bool good = true;
-        makeMove(i->data);
-        if(!isGameLegal()) good = false;
-        undoMove();
-
-        if(inCheck(blacksTurn, boards)) good = false;
-
-        move intermediate;
-        switch (i->data.end) {
-          case 2:
-            intermediate.start = i->data.start;
-            intermediate.end = 3;
-            makeMove(intermediate);
-              if(!isGameLegal()) good = false;
-            undoMove();
-          break;
-          case 6:
-            intermediate.start = i->data.start;
-            intermediate.end = 5;
-            makeMove(intermediate);
-              if(!isGameLegal()) good = false;
-            undoMove();
-          break;
-          case 58:
-            intermediate.start = i->data.start;
-            intermediate.end = 59;
-            makeMove(intermediate);
-              if(!isGameLegal()) good = false;
-            undoMove();
-          break;
-          case 62:
-            intermediate.start = i->data.start;
-            intermediate.end = 61;
-            makeMove(intermediate);
-              if(!isGameLegal()) good = false;
-            undoMove();
-          break;
-        }
-        if(good) returnedMoves.add(i->data);
-      } else {
-        makeMove(i->data);
-        if(isGameLegal()) returnedMoves.add(i->data);
-        undoMove();
-      }
-      i = i->next;
-    }
-    moves.deleteList();
-    return returnedMoves;
-  }*/
-
   arrayMoveList generateLegalMoves() {
     arrayMoveList moves = generateSemilegalMoves();
     arrayMoveList returnedMoves;
@@ -218,14 +161,6 @@ struct game {
     }
     return returnedMoves;
   }
-
-  /*linkedMoveList generateSemilegalMoves() {
-    if(blacksTurn) {
-      return possibleMovesB(history.peek(), boards);
-    } else {
-      return possibleMovesW(history.peek(), boards);
-    }
-  } */
 
   arrayMoveList generateSemilegalMoves() {
     if(blacksTurn) {
