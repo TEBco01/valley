@@ -20,12 +20,12 @@ limitations under the License.
 #include <moves.h>
 #include <moveGeneration.h>
 
-/* template for iterating through linkedMoveList
+/* template for iterating through arrayMoveList
 
-moveNode* i = moves.head;
-while(i != NULL) {
+list.resetIterator();
+while(list.next()) {
   // loop code
-  i = i->next;
+  // Use the getMove and remove functions to interact
 }
 
 */
@@ -85,79 +85,74 @@ struct game {
   }
 
   bool isGameLegal() { // Most of this function can be moved to or shared with the "inCheck" function
-    linkedMoveList moves = generateSemilegalMoves(); // TODO: Big optimization by reusing these generated moves if the depth increases
+    arrayMoveList moves = generateSemilegalMoves(); // TODO: Big optimization by reusing these generated moves if the depth increases
 
-    moveNode* i = moves.head;
-    while(i != NULL) {
-      if(attackOnKing(i->data, boards))
+    moves.resetIterator();
+    while(moves.next()) {
+      if(attackOnKing(moves.getMove(), boards))
       {
-        moves.deleteList();
         return false;
       }
-      i = i->next;
     }
-    moves.deleteList();
     return true;
   }
 
-  linkedMoveList generateLegalMoves() {
-    linkedMoveList moves = generateSemilegalMoves();
-    linkedMoveList returnedMoves;
+  arrayMoveList generateLegalMoves() {
+    arrayMoveList moves = generateSemilegalMoves();
+    arrayMoveList returnedMoves;
 
-    moveNode* i = moves.head;
-    while(i != NULL) {
-      if(i->data.special == 1) { // Are castling kings put in check en route?
+    moves.resetIterator();
+    while(moves.next()) {
+      if(moves.getMove().special == 1) { // Are castling kings put in check en route?
         bool good = true;
-        makeMove(i->data);
+        makeMove(moves.getMove());
         if(!isGameLegal()) good = false;
         undoMove();
 
         if(inCheck(blacksTurn, boards)) good = false;
 
         move intermediate;
-        switch (i->data.end) {
+        switch (moves.getMove().end) {
           case 2:
-            intermediate.start = i->data.start;
+            intermediate.start = moves.getMove().start;
             intermediate.end = 3;
             makeMove(intermediate);
               if(!isGameLegal()) good = false;
             undoMove();
           break;
           case 6:
-            intermediate.start = i->data.start;
+            intermediate.start = moves.getMove().start;
             intermediate.end = 5;
             makeMove(intermediate);
               if(!isGameLegal()) good = false;
             undoMove();
           break;
           case 58:
-            intermediate.start = i->data.start;
+            intermediate.start = moves.getMove().start;
             intermediate.end = 59;
             makeMove(intermediate);
               if(!isGameLegal()) good = false;
             undoMove();
           break;
           case 62:
-            intermediate.start = i->data.start;
+            intermediate.start = moves.getMove().start;
             intermediate.end = 61;
             makeMove(intermediate);
               if(!isGameLegal()) good = false;
             undoMove();
           break;
         }
-        if(good) returnedMoves.add(i->data);
+        if(good) returnedMoves.add(moves.getMove());
       } else {
-        makeMove(i->data);
-        if(isGameLegal()) returnedMoves.add(i->data);
+        makeMove(moves.getMove());
+        if(isGameLegal()) returnedMoves.add(moves.getMove());
         undoMove();
       }
-      i = i->next;
     }
-    moves.deleteList();
     return returnedMoves;
   }
 
-  linkedMoveList generateSemilegalMoves() {
+  arrayMoveList generateSemilegalMoves() {
     if(blacksTurn) {
       return possibleMovesB(history.peek(), boards);
     } else {

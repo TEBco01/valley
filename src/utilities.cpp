@@ -22,16 +22,14 @@ U64 Perft(int depth, game Game)
 
     if (depth == 0) return 1;
 
-    linkedMoveList moves = Game.generateLegalMoves();
+    arrayMoveList moves = Game.generateLegalMoves();
 
-    moveNode* i = moves.head;
-    while(i != NULL) {
-      Game.makeMove(i->data);
+    moves.resetIterator();
+    while(moves.next()) {
+      Game.makeMove(moves.getMove());
       nodes += Perft(depth - 1, Game);
       Game.undoMove();
-      i = i->next;
     }
-    moves.deleteList();
     return nodes;
 }
 
@@ -282,24 +280,24 @@ linkedMoveList parseMoveString(std::string movesList) {
   return returnList;
 }
 
-void parseMovesIntoGame(game& Game, std::string movesList) {
+void parseMovesIntoGame(game& Game, std::string movesList) { // TODO: Fix this so we don't have to use linkedMovelist, then remove it
   linkedMoveList moves = parseMoveString(movesList);
 
   moveNode* i = moves.head;
   while(i != NULL) {
     if(i->data.start == 60) {
-      if(i->data.end == 62 && Game.boards.castleInfo.whiteHCan) {
+      if(i->data.end == 62) {
         i->data.special = 1;
       }
-      if(i->data.end == 58 && Game.boards.castleInfo.whiteACan) {
+      if(i->data.end == 58) {
         i->data.special = 1;
       }
     }
     else if (i->data.start == 4) {
-      if(i->data.end == 6 && Game.boards.castleInfo.blackHCan) {
+      if(i->data.end == 6) {
         i->data.special = 1;
       }
-      if(i->data.end == 2 && Game.boards.castleInfo.blackACan) {
+      if(i->data.end == 2) {
         i->data.special = 1;
       }
     }

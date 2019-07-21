@@ -18,8 +18,8 @@ limitations under the License.
 #include <bitboard.h>
 #include <moves.h>
 
-linkedMoveList possibleMovesW(move lastMove, const bitboards game);
-linkedMoveList possibleMovesB(move lastMove, const bitboards game);
+arrayMoveList possibleMovesW(move lastMove, const bitboards game);
+arrayMoveList possibleMovesB(move lastMove, const bitboards game);
 
 void applyMove(bitboards* game, move change);
 void unapplyMove(bitboards* game, move change);
