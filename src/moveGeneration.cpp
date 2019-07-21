@@ -401,13 +401,12 @@ U64 getNegativeRayAttacks(U64 occupied, U64 friendly, int direction, int square)
 }
 
 void possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces, castleBools castleInfo, bool black, arrayMoveList& possibleMoves) {
-  linkedMoveList positions = generateMovesFromBitboard(rBoard);
+  U64 pieces = rBoard;
 
   const U64 occupied = FriendlyPieces | EnemyPieces;
 
-  moveNode* i = positions.head;
-  while(i != NULL) {
-    int square = (int)i->data.end;
+  while(pieces) {
+    int square = bitPop(pieces);
     U64 attacks = 0ULL;
 
     attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 0, square);
@@ -419,11 +418,7 @@ void possibleMovesRooks(const U64 rBoard, const U64 FriendlyPieces, const U64 En
       int j = bitPop(attacks);
       possibleMoves.create(square, j);
     }
-
-    i = i->next;
   }
-
-  positions.deleteList();
 
 	if(black) {
 		if(castleInfo.blackACan) {
@@ -455,13 +450,12 @@ void possibleMovesBRooks(const bitboards game, const extraBitboardsInfo info, ar
 }
 
 void possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, const U64 EnemyPieces, arrayMoveList& possibleMoves) {
-  linkedMoveList positions = generateMovesFromBitboard(rBoard);
+  U64 pieces = rBoard;
 
   const U64 occupied = FriendlyPieces | EnemyPieces;
 
-  moveNode* i = positions.head;
-  while(i != NULL) {
-    int square = (int)i->data.end;
+  while(pieces) {
+    int square = bitPop(pieces);
     U64 attacks = 0ULL;
 
     attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 1, square);
@@ -473,11 +467,7 @@ void possibleMovesBishops(const U64 rBoard, const U64 FriendlyPieces, const U64 
       int j = bitPop(attacks);
       possibleMoves.create(square, j);
     }
-
-    i = i->next;
   }
-
-  positions.deleteList();
 }
 
 void possibleMovesWBishops(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
@@ -489,13 +479,12 @@ void possibleMovesBBishops(const bitboards game, const extraBitboardsInfo info, 
 }
 
 void possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, const U64 EnemyPieces, arrayMoveList& possibleMoves) {
-  linkedMoveList positions = generateMovesFromBitboard(qBoard);
+  U64 pieces = qBoard;
 
   const U64 occupied = FriendlyPieces | EnemyPieces;
 
-  moveNode* i = positions.head;
-  while(i != NULL) {
-    int square = (int)i->data.end;
+  while(pieces) {
+    int square = bitPop(pieces);
     U64 attacks = 0ULL;
 
     attacks |= getNegativeRayAttacks(occupied, FriendlyPieces, 0, square);
@@ -512,11 +501,7 @@ void possibleMovesQueens(const U64 qBoard, const U64 FriendlyPieces, const U64 E
       int j = bitPop(attacks);
       possibleMoves.create(square, j);
     }
-
-    i = i->next;
   }
-
-  positions.deleteList();
 }
 
 void possibleMovesWQueens(const bitboards game, const extraBitboardsInfo info, arrayMoveList& possibleMoves) {
