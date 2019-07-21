@@ -95,18 +95,15 @@ struct game {
   }
 
   bool isGameLegal() { // Most of this function can be moved to or shared with the "inCheck" function
-    linkedMoveList moves = generateSemilegalMoves(); // TODO: Big optimization by reusing these generated moves if the depth increases
+    arrayMoveList moves = generateSemilegalMoves(); // TODO: Big optimization by reusing these generated moves if the depth increases
 
-    moveNode* i = moves.head;
-    while(i != NULL) {
-      if(attackOnKing(i->data, boards))
+    moves.resetIterator();
+    while(moves.next()) {
+      if(attackOnKing(moves.getMove(), boards))
       {
-        moves.deleteList();
         return false;
       }
-      i = i->next;
     }
-    moves.deleteList();
     return true;
   }
 
