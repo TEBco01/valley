@@ -184,7 +184,7 @@ void possibleMovesWPawns(move lastMove, const bitboards game, const extraBitboar
     }
   }
 
-  U64 prL = ((game.WP & Rank_7) << 9) & ~(info.WhitePieces) & info.BlackPieces;
+  U64 prL = ((game.WP & Rank_7 & ~File_A) << 9) & ~(info.WhitePieces) & info.BlackPieces;
   while(prL != 0) {
     int i = bitPop(prL);
     for(byte j = 2; j <= 5; j++) {
@@ -192,7 +192,7 @@ void possibleMovesWPawns(move lastMove, const bitboards game, const extraBitboar
     }
   }
 
-  U64 prR = ((game.WP & Rank_7) << 7) & ~(info.WhitePieces) & info.BlackPieces;
+  U64 prR = ((game.WP & Rank_7 & ~File_H) << 7) & ~(info.WhitePieces) & info.BlackPieces;
   while(prR != 0) {
     int i = bitPop(prR);
     for(byte j = 2; j <= 5; j++) {
@@ -240,7 +240,7 @@ void possibleMovesBPawns(move lastMove, const bitboards game, const extraBitboar
     }
   }
 
-  U64 prL = ((game.BP & Rank_2) >> 7) & ~(info.BlackPieces) & info.WhitePieces;
+  U64 prL = ((game.BP & Rank_2 & ~File_A) >> 7) & ~(info.BlackPieces) & info.WhitePieces;
   while(prL != 0) {
     int i = bitPop(prL);
     for(byte j = 6; j <= 9; j++) {
@@ -248,7 +248,7 @@ void possibleMovesBPawns(move lastMove, const bitboards game, const extraBitboar
     }
   }
 
-  U64 prR = ((game.BP & Rank_2) >> 9) & ~(info.BlackPieces) & info.WhitePieces;
+  U64 prR = ((game.BP & Rank_2 & ~File_H) >> 9) & ~(info.BlackPieces) & info.WhitePieces;
   while(prR != 0) {
     int i = bitPop(prR);
     for(byte j = 6; j <= 9; j++) {
