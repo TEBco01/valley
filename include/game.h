@@ -19,50 +19,13 @@ limitations under the License.
 #include <bitboard.h>
 #include <moves.h>
 #include <moveGeneration.h>
-
-/* template for iterating through arrayMoveList
-
-list.resetIterator();
-while(list.next()) {
-  // loop code
-  // Use the getMove and remove functions to interact
-}
-
-*/
-
-struct boardNode {
-  bitboards boards;
-  boardNode* last;
-};
-
-class boardStack {
-  boardNode* tail = NULL;
-
-public:
-  void push(bitboards boards);
-  bitboards pop();
-};
-
-struct movePancake {
-	move data;
-	movePancake *last;
-};
-
-class moveStack {
-	public:
-		void push(move a);
-		move pop(); // TODO: Would an empty pop be more efficient? We never need to peek while we pop
-   	void emptyPop();
-    move peek();
-	private:
-		movePancake *tail = NULL;
-};
+#include <stack>
 
 struct game {
   bitboards boards;
-  boardStack boardHistory;
+  std::stack<bitboards> boardHistory;
 
-  moveStack history;
+  std::stack<move> history;
 
   bool blacksTurn = 0;
 
@@ -79,8 +42,9 @@ struct game {
     blacksTurn ^= 1;
   }
   void undoMove() {
-    boards = boardHistory.pop();
-    history.emptyPop();
+    boards = boardHistory.top();
+    boardHistory.pop();
+    history.pop();
     blacksTurn ^= 1;
   }
 
@@ -153,10 +117,15 @@ struct game {
   }
 
   arrayMoveList generateSemilegalMoves() {
+      move lastMove;
+      if(!history.empty()) {
+          lastMove = history.top();
+      }
+
     if(blacksTurn) {
-      return possibleMovesB(history.peek(), boards);
+      return possibleMovesB(lastMove, boards);
     } else {
-      return possibleMovesW(history.peek(), boards);
+      return possibleMovesW(lastMove, boards);
     }
   }
 };
